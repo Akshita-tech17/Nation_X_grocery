@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { QuotationRequest, QuotationItem } from '../../types';
 import { MERCHANTS } from '../../data/merchants';
 import { useCart } from '../../context/CartContext';
+import { useMerchant } from '../../context/MerchantContext';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import {
@@ -19,45 +20,7 @@ import {
 
 export const MerchantQuotationSection: React.FC = () => {
   const { showToast } = useCart();
-
-  // Seed initial quotations for realistic interactive demonstration
-  const [quotations, setQuotations] = useState<QuotationRequest[]>([
-    {
-      id: 'RFQ-84920',
-      date: 'Today, 07:15 AM',
-      businessName: 'Annapurna Catering & Banquet Pvt Ltd',
-      contactPerson: 'Vikram Joshi',
-      phone: '+91 99002 88471',
-      gstNumber: '29AABCA9012F1Z4',
-      deliveryCity: 'Bengaluru (Peenya Industrial Area)',
-      frequency: 'weekly',
-      items: [
-        { commodity: 'Aashirvaad MP Sharbati Atta', quantity: '30', unit: '5kg bags', targetPrice: 280 },
-        { commodity: 'BPT 5204 Andhra Sona Masoori Rice', quantity: '10', unit: '25kg sacks', targetPrice: 1350 },
-        { commodity: 'Dhampur Refined Sugar', quantity: '5', unit: '50kg gunny sacks', targetPrice: 2000 }
-      ],
-      status: 'quoted',
-      quotedPrice: 31800,
-      validUntil: 'Valid for 48 hours',
-      mandiNotes: 'Direct Yeshwanthpur APMC Mandi discount of 21.5% applied. Free tailgate mini-truck freight included.'
-    },
-    {
-      id: 'RFQ-84105',
-      date: 'Yesterday, 03:30 PM',
-      businessName: 'Udupi Krishna Grand Restaurant',
-      contactPerson: 'Prabhakar Rao',
-      phone: '+91 98451 22910',
-      gstNumber: '29AADCK4481E1Z8',
-      deliveryCity: 'Bengaluru (Indiranagar)',
-      frequency: 'monthly',
-      items: [
-        { commodity: 'Pure Desi Gir Cow Vedic Bilona Ghee', quantity: '20', unit: '1L jars', targetPrice: 1100 },
-        { commodity: 'Tata Sampann Unpolished Toor Dal', quantity: '60', unit: '1kg packs', targetPrice: 135 }
-      ],
-      status: 'under_review',
-      mandiNotes: 'Mandi pricing desk is reviewing batch lot availability at APMC depot.'
-    }
-  ]);
+  const { quotations, addQuotationRequest, submitQuotationResponse } = useMerchant();
 
   // Form state
   const [businessName, setBusinessName] = useState('');
@@ -115,7 +78,7 @@ export const MerchantQuotationSection: React.FC = () => {
       mandiNotes: 'Received at APMC Mandi Central Desk. Expected quotation within 2 hours.'
     };
 
-    setQuotations(prev => [newRfq, ...prev]);
+    addQuotationRequest(newRfq);
     showToast(`✅ RFQ #${newRfq.id} submitted to Mandi traders!`);
     setActiveTab('history');
 
@@ -127,8 +90,11 @@ export const MerchantQuotationSection: React.FC = () => {
   };
 
   const handleAcceptQuotation = (rfqId: string) => {
-    setQuotations(prev =>
-      prev.map(q => (q.id === rfqId ? { ...q, status: 'accepted' } : q))
+    const matching = quotations.find(q => q.id === rfqId);
+    submitQuotationResponse(
+      rfqId,
+      matching?.quotedPrice || 30000,
+      'Accepted by institutional buyer. Preparing dispatch slip.'
     );
     showToast(`🎉 Quotation #${rfqId} accepted! Converted to confirmed order.`);
   };

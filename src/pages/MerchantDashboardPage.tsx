@@ -2,22 +2,29 @@ import React, { useState } from 'react';
 import { useMerchant } from '../context/MerchantContext';
 import { useCart } from '../context/CartContext';
 import { MetricsBar } from '../components/merchant/MetricsBar';
-import { OrderPipeline } from '../components/merchant/OrderPipeline';
+import { ProductManagementTable } from '../components/merchant/ProductManagementTable';
 import { InventoryTable } from '../components/merchant/InventoryTable';
+import { OrderPipeline } from '../components/merchant/OrderPipeline';
+import { BulkBuyQuotationsTable } from '../components/merchant/BulkBuyQuotationsTable';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import {
+  LayoutDashboard,
   Package,
   Layers,
-  Settings,
-  PlusCircle,
-  Check
+  ShoppingBag,
+  FileText,
+  PlusCircle
 } from 'lucide-react';
 
 export const MerchantDashboardPage: React.FC = () => {
-  const { merchants, activeMerchantId, setActiveMerchantId, addNewOrder } = useMerchant();
+  const { merchants, activeMerchantId, setActiveMerchantId, addNewOrder, orders, quotations } = useMerchant();
   const { showToast } = useCart();
-  const [activeTab, setActiveTab] = useState<'orders' | 'inventory' | 'profile'>('orders');
+
+  // 5 Merchant Screens Tab Navigation
+  const [activeTab, setActiveTab] = useState<
+    'dashboard' | 'products' | 'inventory' | 'orders' | 'quotations'
+  >('dashboard');
 
   const currentStore = merchants.find(m => m.id === activeMerchantId) || merchants[0];
 
@@ -77,40 +84,43 @@ export const MerchantDashboardPage: React.FC = () => {
       estimatedDelivery: 'In 20 mins'
     });
 
-    showToast(`🔔 Ding! New order #${id} received!`);
+    showToast(`Ding! New incoming order #${id} received in pipeline!`);
   };
+
+  const pendingOrdersCount = orders.filter(o => o.status !== 'delivered').length;
+  const pendingQuotationsCount = quotations.filter(q => q.status === 'under_review' || q.status === 'submitted').length;
 
   return (
     <div className="space-y-8 pb-16">
       {/* Merchant Header Bar */}
-      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-warm-200 shadow-soft flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <img
             src={currentStore.image}
             alt={currentStore.name}
-            className="w-16 h-16 rounded-2xl object-cover border border-warm-200 shadow-sm shrink-0"
+            className="w-16 h-16 rounded-2xl object-cover border border-stone-200 shadow-sm shrink-0"
           />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg sm:text-xl text-warm-900">
+              <span className="font-bold text-lg sm:text-xl text-stone-900">
                 {currentStore.name}
               </span>
-              <Badge variant="forest" size="sm">Verified Merchant</Badge>
+              <Badge variant="forest" size="sm">Verified Kirana Merchant</Badge>
             </div>
-            <p className="text-xs text-warm-500 mt-0.5">
-              Owner: <strong className="text-warm-700">{currentStore.ownerName}</strong> • {currentStore.address}
+            <p className="text-xs text-stone-500 mt-0.5">
+              Owner: <strong className="text-stone-700">{currentStore.ownerName}</strong> • {currentStore.address}
             </p>
           </div>
         </div>
 
-        {/* Store Switcher & Test Order Button */}
+        {/* Store Switcher & Simulated Order Action */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-warm-400 font-medium">Switch Store:</span>
+            <span className="text-stone-400 font-medium">Switch Store:</span>
             <select
               value={activeMerchantId}
               onChange={e => setActiveMerchantId(e.target.value)}
-              className="bg-warm-50 border border-warm-200 rounded-xl px-3 py-2 text-xs font-semibold text-warm-800 focus:outline-none focus:ring-1 focus:ring-forest-600"
+              className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none focus:ring-1 focus:ring-forest-600"
             >
               {merchants.map(m => (
                 <option key={m.id} value={m.id}>
@@ -131,121 +141,194 @@ export const MerchantDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Real-time Business Metrics */}
-      <MetricsBar />
-
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-warm-200 pb-1">
+      {/* 5 Main Merchant Screens Tab Bar */}
+      <div className="flex items-center gap-2 border-b border-stone-200 pb-2 overflow-x-auto no-scrollbar">
+        {/* Screen 1: Dashboard Overview */}
         <button
-          onClick={() => setActiveTab('orders')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-            activeTab === 'orders'
+          onClick={() => setActiveTab('dashboard')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+            activeTab === 'dashboard'
               ? 'bg-forest-900 text-white shadow-sm'
-              : 'text-warm-600 hover:text-warm-900 hover:bg-warm-100'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+          }`}
+        >
+          <LayoutDashboard className="w-4 h-4" />
+          <span>1. Merchant Dashboard</span>
+        </button>
+
+        {/* Screen 2: Product Management */}
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+            activeTab === 'products'
+              ? 'bg-forest-900 text-white shadow-sm'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
           }`}
         >
           <Package className="w-4 h-4" />
-          <span>Live Orders Pipeline</span>
+          <span>2. Product Management</span>
         </button>
 
+        {/* Screen 3: Inventory & Pricing */}
         <button
           onClick={() => setActiveTab('inventory')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
             activeTab === 'inventory'
               ? 'bg-forest-900 text-white shadow-sm'
-              : 'text-warm-600 hover:text-warm-900 hover:bg-warm-100'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Inventory & Slabs</span>
+          <span>3. Inventory & Pricing</span>
         </button>
 
+        {/* Screen 4: Order Management */}
         <button
-          onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-            activeTab === 'profile'
+          onClick={() => setActiveTab('orders')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+            activeTab === 'orders'
               ? 'bg-forest-900 text-white shadow-sm'
-              : 'text-warm-600 hover:text-warm-900 hover:bg-warm-100'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
           }`}
         >
-          <Settings className="w-4 h-4" />
-          <span>Kirana Khata & Settings</span>
+          <ShoppingBag className="w-4 h-4" />
+          <span>4. Order Management</span>
+          {pendingOrdersCount > 0 && (
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              activeTab === 'orders' ? 'bg-forest-800 text-emerald-200' : 'bg-emerald-100 text-forest-900'
+            }`}>
+              {pendingOrdersCount}
+            </span>
+          )}
+        </button>
+
+        {/* Screen 5: BulkBuy Quotations */}
+        <button
+          onClick={() => setActiveTab('quotations')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+            activeTab === 'quotations'
+              ? 'bg-forest-900 text-white shadow-sm'
+              : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>5. BulkBuy Quotations</span>
+          {pendingQuotationsCount > 0 && (
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+              activeTab === 'quotations' ? 'bg-amber-800 text-white' : 'bg-amber-100 text-amber-900'
+            }`}>
+              {pendingQuotationsCount}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* Tab Panels */}
-      {activeTab === 'orders' && <OrderPipeline />}
+      {/* Screen 1: Merchant Dashboard */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-6">
+          <MetricsBar />
 
-      {activeTab === 'inventory' && <InventoryTable />}
+          {/* Quick Action Matrix & Store Operations */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Store Status Card */}
+            <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Live Operating Status</span>
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  Store Open & Accepting
+                </span>
+              </div>
+              <div className="space-y-2 text-xs text-stone-600">
+                <div className="flex justify-between">
+                  <span>Delivery Coverage:</span>
+                  <strong className="text-stone-900">{currentStore.distance} radius ({currentStore.deliveryTime})</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Avg Order Packing Time:</span>
+                  <strong className="text-stone-900">8.4 minutes</strong>
+                </div>
+                <div className="flex justify-between">
+                  <span>Store Contact:</span>
+                  <strong className="text-stone-900 font-mono">{currentStore.phone}</strong>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+                <span className="text-stone-500">Fast Kirana Dispatch:</span>
+                <Badge variant="forest" size="sm">Active</Badge>
+              </div>
+            </div>
 
-      {activeTab === 'profile' && (
-        <div className="bg-white rounded-3xl border border-warm-200 p-6 sm:p-8 space-y-6 shadow-soft max-w-2xl">
-          <div className="space-y-1">
-            <h3 className="font-bold text-warm-900 text-base">Store Profile & Digital Khata Register</h3>
-            <p className="text-xs text-warm-500">Configure your store opening hours, contact number, and credit ledger settings</p>
+            {/* Quick Short-cut to Fulfillment */}
+            <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Orders Queue</span>
+                <span className="font-mono font-bold text-sm text-forest-900">{pendingOrdersCount} Active</span>
+              </div>
+              <p className="text-xs text-stone-500 leading-relaxed">
+                You have orders currently waiting in the acceptance and packing queue. Review customer items and initiate rider dispatch.
+              </p>
+              <div className="pt-2 border-t border-stone-100">
+                <Button
+                  size="sm"
+                  variant="primary"
+                  className="w-full"
+                  onClick={() => setActiveTab('orders')}
+                >
+                  Open Order Pipeline
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Short-cut to B2B Quotations */}
+            <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Mandi RFQs</span>
+                <span className="font-mono font-bold text-sm text-amber-700">{quotations.length} Total</span>
+              </div>
+              <p className="text-xs text-stone-500 leading-relaxed">
+                Review incoming bulk procurement RFQs from restaurants and caterers, quote mandi prices, and secure bulk lots.
+              </p>
+              <div className="pt-2 border-t border-stone-100">
+                <Button
+                  size="sm"
+                  variant="amber"
+                  className="w-full"
+                  onClick={() => setActiveTab('quotations')}
+                >
+                  Review Bulk RFQs
+                </Button>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="font-semibold text-warm-700 block mb-1">Store Name</label>
-                <input
-                  type="text"
-                  readOnly
-                  value={currentStore.name}
-                  className="w-full px-3 py-2 bg-warm-50 border border-warm-200 rounded-xl text-warm-900 font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-warm-700 block mb-1">Registered Phone</label>
-                <input
-                  type="text"
-                  readOnly
-                  value={currentStore.phone}
-                  className="w-full px-3 py-2 bg-warm-50 border border-warm-200 rounded-xl text-warm-900 font-mono"
-                />
-              </div>
+          {/* Embedded Live Pipeline preview */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <h4 className="font-bold text-stone-900 text-sm">Recent Store Orders</h4>
+              <button
+                onClick={() => setActiveTab('orders')}
+                className="text-xs font-bold text-forest-700 hover:underline"
+              >
+                View all in Order Management →
+              </button>
             </div>
-
-            <div>
-              <label className="font-semibold text-warm-700 block mb-1">Store Address</label>
-              <input
-                type="text"
-                readOnly
-                value={currentStore.address}
-                className="w-full px-3 py-2 bg-warm-50 border border-warm-200 rounded-xl text-warm-900"
-              />
-            </div>
-
-            <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl space-y-2">
-              <div className="flex items-center gap-2 text-emerald-900 font-bold">
-                <Check className="w-4 h-4 text-emerald-700" />
-                <span>Active Features for this Kirana</span>
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {currentStore.features.map(f => (
-                  <span key={f} className="px-2.5 py-1 rounded-lg bg-white border border-emerald-200 text-emerald-800 text-[11px] font-medium">
-                    {f}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 bg-warm-50 border border-warm-200 rounded-2xl space-y-2">
-              <h5 className="font-bold text-warm-900 text-xs">Digital Khata (Customer Credit Ledger)</h5>
-              <p className="text-[11px] text-warm-500 leading-relaxed">
-                Allow trusted neighborhood residents to purchase on monthly credit terms up to ₹5,000 per household.
-                Payment reminder SMS is sent on the 1st of every month automatically with UPI pay link.
-              </p>
-              <div className="pt-1 flex items-center justify-between text-[11px] font-semibold text-warm-800">
-                <span>Active Khata Accounts: <strong>48 Families</strong></span>
-                <span>Outstanding Dues: <strong>₹34,820</strong></span>
-              </div>
-            </div>
+            <OrderPipeline />
           </div>
         </div>
       )}
+
+      {/* Screen 2: Product Management */}
+      {activeTab === 'products' && <ProductManagementTable />}
+
+      {/* Screen 3: Inventory & Pricing */}
+      {activeTab === 'inventory' && <InventoryTable />}
+
+      {/* Screen 4: Order Management */}
+      {activeTab === 'orders' && <OrderPipeline />}
+
+      {/* Screen 5: BulkBuy Quotations */}
+      {activeTab === 'quotations' && <BulkBuyQuotationsTable />}
     </div>
   );
 };

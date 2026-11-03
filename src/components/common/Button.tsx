@@ -21,29 +21,29 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-forest-900 hover:bg-forest-950 text-white shadow-sm hover:shadow active:scale-[0.98] border border-forest-900',
+      'bg-forest-900 hover:bg-forest-950 text-white shadow-sm active:scale-[0.98] border border-forest-900 focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2',
     secondary:
-      'bg-forest-50 hover:bg-forest-100 text-forest-900 border border-forest-200 active:scale-[0.98]',
+      'bg-forest-50 hover:bg-forest-100 text-forest-900 border border-forest-200/80 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-forest-600',
     outline:
-      'bg-transparent hover:bg-warm-100 text-warm-900 border border-warm-300 hover:border-warm-400 active:scale-[0.98]',
+      'bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 hover:border-stone-300 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-forest-600',
     ghost:
-      'bg-transparent hover:bg-warm-200/50 text-warm-800 hover:text-warm-950 active:scale-[0.98]',
+      'bg-transparent hover:bg-stone-100 text-stone-700 hover:text-stone-900 active:scale-[0.98]',
     amber:
-      'bg-amber-600 hover:bg-amber-700 text-white shadow-sm hover:shadow active:scale-[0.98] border border-amber-600',
+      'bg-amber-600 hover:bg-amber-700 text-white shadow-sm active:scale-[0.98] border border-amber-600 focus-visible:ring-2 focus-visible:ring-amber-500',
     danger:
-      'bg-rose-600 hover:bg-rose-700 text-white shadow-sm hover:shadow active:scale-[0.98] border border-rose-600'
+      'bg-rose-600 hover:bg-rose-700 text-white shadow-sm active:scale-[0.98] border border-rose-600'
   };
 
   const sizeStyles = {
-    sm: 'text-xs px-2.5 py-1.5 rounded-lg gap-1.5 font-medium',
-    md: 'text-sm px-4 py-2 rounded-xl gap-2 font-medium',
-    lg: 'text-base px-5 py-2.5 rounded-xl gap-2.5 font-semibold'
+    sm: 'text-xs px-3 py-1.5 rounded-lg gap-1.5 font-semibold',
+    md: 'text-sm px-4 py-2 rounded-xl gap-2 font-semibold',
+    lg: 'text-base px-5 py-2.5 rounded-xl gap-2.5 font-bold'
   };
 
   return (
     <button
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center justify-center transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none focus-visible:outline-none ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
       {...props}
     >
       {loading ? (
@@ -58,4 +58,3 @@ export const Button: React.FC<ButtonProps> = ({
     </button>
   );
 };
-
