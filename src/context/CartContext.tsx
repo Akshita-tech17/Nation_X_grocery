@@ -1,0 +1,171 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Product, CartItem, BulkTier } from '../types';
+
+interface CartContextType {
+  cart: CartItem[];
+  addToCart: (product: Product, quantity?: number, mode?: 'retail' | 'wholesale') => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  clearCart: () => void;
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  totalItems: number;
+  subtotal: number;
+  originalTotal: number;
+  totalSavings: number;
+  checkoutModalOpen: boolean;
+  setCheckoutModalOpen: (open: boolean) => void;
+  quickToast: string | null;
+  showToast: (msg: string) => void;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('nationx_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [quickToast, setQuickToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('nationx_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [cart]);
+
+  const showToast = (msg: string) => {
+    setQuickToast(msg);
+    setTimeout(() => {
+      setQuickToast(prev => (prev === msg ? null : prev));
+    }, 2800);
+  };
+
+  const getEffectiveTierAndPrice = (product: Product, qty: number, mode: 'retail' | 'wholesale'): { unitPrice: number; tier?: BulkTier } => {
+    if (mode === 'wholesale' && product.bulkTiers && product.bulkTiers.length > 0) {
+      // Find highest tier matched
+      const eligibleTiers = product.bulkTiers
+        .filter(t => qty >= t.minQty)
+        .sort((a, b) => b.minQty - a.minQty);
+
+      if (eligibleTiers.length > 0) {
+        return { unitPrice: eligibleTiers[0].pricePerUnit, tier: eligibleTiers[0] };
+      }
+      // If below lowest tier but in wholesale mode, default to first tier price or retail
+      return { unitPrice: product.bulkTiers[0].pricePerUnit, tier: product.bulkTiers[0] };
+    }
+    return { unitPrice: product.retailPrice };
+  };
+
+  const addToCart = (product: Product, quantity = 1, mode: 'retail' | 'wholesale' = 'retail') => {
+    setCart(prev => {
+      const existingIndex = prev.findIndex(item => item.product.id === product.id);
+      
+      const newQty = existingIndex > -1 ? prev[existingIndex].quantity + quantity : quantity;
+      const { unitPrice, tier } = getEffectiveTierAndPrice(product, newQty, mode);
+
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: newQty,
+          unitPrice,
+          appliedTier: tier,
+          totalPrice: unitPrice * newQty,
+          mode: mode || updated[existingIndex].mode
+        };
+        return updated;
+      } else {
+        return [
+          ...prev,
+          {
+            product,
+            quantity: newQty,
+            mode,
+            appliedTier: tier,
+            unitPrice,
+            totalPrice: unitPrice * newQty
+          }
+        ];
+      }
+    });
+
+    showToast(`Added ${quantity}x ${product.name.slice(0, 24)}... to basket`);
+  };
+
+  const updateQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
+    setCart(prev =>
+      prev.map(item => {
+        if (item.product.id === productId) {
+          const { unitPrice, tier } = getEffectiveTierAndPrice(item.product, quantity, item.mode);
+          return {
+            ...item,
+            quantity,
+            unitPrice,
+            appliedTier: tier,
+            totalPrice: unitPrice * quantity
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.product.id !== productId));
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+  const originalTotal = cart.reduce((sum, item) => sum + (item.product.originalPrice * item.quantity), 0);
+  const totalSavings = Math.max(0, originalTotal - subtotal);
+
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        isCartOpen,
+        setIsCartOpen,
+        totalItems,
+        subtotal,
+        originalTotal,
+        totalSavings,
+        checkoutModalOpen,
+        setCheckoutModalOpen,
+        quickToast,
+        showToast
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) throw new Error('useCart must be used within a CartProvider');
+  return context;
+};
+
