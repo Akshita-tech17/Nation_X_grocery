@@ -114,3 +114,34 @@ export interface Category {
   description: string;
 }
 
+
+export interface QuotationItem {
+  commodity: string;
+  quantity: string;
+  unit: string;
+  targetPrice?: number;
+}
+
+export interface QuotationRequest {
+  id: string;
+  date: string;
+  businessName: string;
+  contactPerson: string;
+  phone: string;
+  gstNumber?: string;
+  deliveryCity: string;
+  frequency: 'one-time' | 'weekly' | 'bi-weekly' | 'monthly';
+  items: QuotationItem[];
+  status: 'submitted' | 'under_review' | 'quoted' | 'accepted' | 'rejected';
+  quotedPrice?: number;
+  validUntil?: string;
+  mandiNotes?: string;
+}
+
+export interface ParsedPurchaseItem {
+  rawLine: string;
+  matchedProduct?: Product;
+  quantity: number;
+  confidence: number;
+  unit: string;
+}

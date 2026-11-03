@@ -12,7 +12,8 @@ export const PRODUCTS: Product[] = [
     packSize: '5 kg pouch',
     retailPrice: 345,
     originalPrice: 385,
-    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
+    // Real wheat flour & golden grain sack
+    image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=700&auto=format&fit=crop&q=80',
     rating: 4.8,
     reviewCount: 1420,
     inStock: true,
@@ -49,7 +50,8 @@ export const PRODUCTS: Product[] = [
     packSize: '5 kg Zip Bag',
     retailPrice: 790,
     originalPrice: 920,
-    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80',
+    // Real extra-long slender basmati grains
+    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=700&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewCount: 980,
     inStock: true,
@@ -85,7 +87,8 @@ export const PRODUCTS: Product[] = [
     packSize: '1 kg Standup Pouch',
     retailPrice: 172,
     originalPrice: 195,
-    image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&auto=format&fit=crop&q=80',
+    // Real yellow toor lentils / pulses
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=700&auto=format&fit=crop&q=80',
     rating: 4.7,
     reviewCount: 650,
     inStock: true,
@@ -120,7 +123,8 @@ export const PRODUCTS: Product[] = [
     packSize: '1000 ml Glass Jar',
     retailPrice: 1450,
     originalPrice: 1750,
-    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80',
+    // Real golden clarified butter / desi ghee in glass jar
+    image: 'https://images.unsplash.com/photo-1631451095765-2c91616fc9e6?w=700&auto=format&fit=crop&q=80',
     rating: 4.95,
     reviewCount: 410,
     inStock: true,
@@ -157,7 +161,8 @@ export const PRODUCTS: Product[] = [
     packSize: '5 Litre Metal Canister',
     retailPrice: 760,
     originalPrice: 850,
-    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80',
+    // Real edible mustard oil
+    image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=700&auto=format&fit=crop&q=80',
     rating: 4.7,
     reviewCount: 830,
     inStock: true,
@@ -191,7 +196,8 @@ export const PRODUCTS: Product[] = [
     packSize: '500 g Airtight Pouch',
     retailPrice: 520,
     originalPrice: 620,
-    image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&auto=format&fit=crop&q=80',
+    // Real bold black peppercorns
+    image: 'https://images.unsplash.com/photo-1599909682705-7f9185a539eb?w=700&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewCount: 310,
     inStock: true,
@@ -227,7 +233,8 @@ export const PRODUCTS: Product[] = [
     packSize: '1 kg Vacuum Pack',
     retailPrice: 890,
     originalPrice: 1050,
-    image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600&auto=format&fit=crop&q=80',
+    // Real whole raw almonds
+    image: 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=700&auto=format&fit=crop&q=80',
     rating: 4.85,
     reviewCount: 520,
     inStock: true,
@@ -262,7 +269,8 @@ export const PRODUCTS: Product[] = [
     packSize: '4-5 pcs per kg tray',
     retailPrice: 190,
     originalPrice: 240,
-    image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=600&auto=format&fit=crop&q=80',
+    // Real red crisp apples
+    image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=700&auto=format&fit=crop&q=80',
     rating: 4.6,
     reviewCount: 390,
     inStock: true,
@@ -290,7 +298,8 @@ export const PRODUCTS: Product[] = [
     packSize: '1 kg Vacuum Brick',
     retailPrice: 420,
     originalPrice: 460,
-    image: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=600&auto=format&fit=crop&q=80',
+    // Real fresh paneer / cottage cheese block
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=700&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewCount: 1100,
     inStock: true,
@@ -323,7 +332,8 @@ export const PRODUCTS: Product[] = [
     packSize: '50 kg Jute / HDPE Gunny Sack',
     retailPrice: 2250,
     originalPrice: 2450,
-    image: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80',
+    // Real white refined crystal sugar
+    image: 'https://images.unsplash.com/photo-1622484212850-cab596d63c5a?w=700&auto=format&fit=crop&q=80',
     rating: 4.8,
     reviewCount: 290,
     inStock: true,
@@ -358,7 +368,8 @@ export const PRODUCTS: Product[] = [
     packSize: '25 kg Woven Sack',
     retailPrice: 1550,
     originalPrice: 1750,
-    image: 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=600&auto=format&fit=crop&q=80',
+    // Real rice grain sack
+    image: 'https://images.unsplash.com/photo-1536304929831-ee1ca9d44906?w=700&auto=format&fit=crop&q=80',
     rating: 4.75,
     reviewCount: 380,
     inStock: true,
@@ -393,7 +404,8 @@ export const PRODUCTS: Product[] = [
     packSize: '2 g Acrylic Safety Box',
     retailPrice: 650,
     originalPrice: 800,
-    image: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=600&auto=format&fit=crop&q=80',
+    // Real crimson saffron threads
+    image: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?w=700&auto=format&fit=crop&q=80',
     rating: 4.95,
     reviewCount: 210,
     inStock: true,
@@ -409,6 +421,74 @@ export const PRODUCTS: Product[] = [
       { minQty: 5, pricePerUnit: 580, discountPercent: 10, label: 'Mithai Chef Pack (5 boxes)' },
       { minQty: 15, pricePerUnit: 510, discountPercent: 21, label: 'Wedding Caterer Tier (15 boxes)' }
     ]
+  },
+  {
+    id: 'prod-tata-salt-iodized',
+    name: 'Tata Salt Vacuum Evaporated Iodized Salt',
+    hindiName: 'टाटा नमक (देश का नमक)',
+    brand: 'Tata Salt',
+    category: 'staples-atta',
+    subCategory: 'Salt & Minerals',
+    unit: '1 kg',
+    packSize: '1 kg Pouch',
+    retailPrice: 28,
+    originalPrice: 30,
+    // Real white table / sea salt
+    image: 'https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?w=700&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewCount: 2400,
+    inStock: true,
+    stockQuantity: 200,
+    origin: 'Mithapur, Gujarat',
+    description: 'Purity guaranteed with vacuum evaporation technology. Wholesome iodine enrichment for cognitive health and everyday seasoning.',
+    nutrition: {
+      energy: '0 kcal',
+      protein: '0 g',
+      carbs: '0 g',
+      fat: '0 g'
+    },
+    tags: ['Vacuum Evaporated', 'Iodized', 'Purity Assured'],
+    merchantId: 'store-sharma-kirana',
+    merchantName: 'Sharmaji Kirana & Superstore',
+    minWholesaleQty: 25,
+    bulkTiers: [
+      { minQty: 25, pricePerUnit: 24, discountPercent: 14, label: 'Carton of 25kg (25x 1kg)' },
+      { minQty: 100, pricePerUnit: 21, discountPercent: 25, label: 'Wholesale Depot Pallet (100x 1kg)' }
+    ]
+  },
+  {
+    id: 'prod-royal-cashews-w240',
+    name: 'Royal Mangalore W240 King Size Whole Cashews',
+    hindiName: 'शाही काजू डब्ल्यू 240 (बड़ा दाना)',
+    brand: 'Royal Dry Fruit Co.',
+    category: 'dry-fruits',
+    subCategory: 'Cashews',
+    unit: '1 kg',
+    packSize: '1 kg Nitrogen Flush Tin',
+    retailPrice: 1150,
+    originalPrice: 1350,
+    // Real white cashew nuts
+    image: 'https://images.unsplash.com/photo-1536591375315-1b836814d609?w=700&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewCount: 420,
+    inStock: true,
+    stockQuantity: 40,
+    origin: 'Mangalore Coastal Belt, Karnataka',
+    description: 'Jumbo W240 grade whole cashew kernels, sweet, buttery, and crunch roasted without artificial additives.',
+    nutrition: {
+      energy: '553 kcal / 100g',
+      protein: '18.2 g',
+      carbs: '30.1 g',
+      fat: '43.8 g'
+    },
+    tags: ['W240 Jumbo', 'Mangalore Origin', 'Nitrogen Flushed'],
+    merchantId: 'store-annapurna-organic',
+    merchantName: 'Annapurna Organic Depot & Farm Fresh',
+    minWholesaleQty: 5,
+    bulkTiers: [
+      { minQty: 5, pricePerUnit: 1040, discountPercent: 10, label: 'Mithai Restock (5x 1kg)' },
+      { minQty: 20, pricePerUnit: 940, discountPercent: 18, label: 'Commercial Sweetmaker Master Box (20 kg)' }
+    ],
+    badge: 'Royal Grade'
   }
 ];
-
