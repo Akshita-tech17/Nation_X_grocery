@@ -63,17 +63,31 @@ export const Header: React.FC = () => {
                     Grocery
                   </span>
                 </span>
-                <span className="text-[10px] font-medium text-stone-600 -mt-0.5">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsLocationModalOpen(true);
+                  }}
+                  className="sm:hidden flex items-center gap-1 text-[11px] font-semibold text-forest-800 -mt-0.5 text-left truncate max-w-[140px] active:opacity-70"
+                  aria-label={`Delivery location: ${currentLocation.area}. Tap to change`}
+                >
+                  <MapPin className="w-3 h-3 text-forest-700 shrink-0" />
+                  <span className="truncate">{currentLocation.area}</span>
+                  <ChevronDown className="w-2.5 h-2.5 text-stone-500 shrink-0" />
+                </button>
+                <span className="hidden sm:block text-[10px] font-medium text-stone-600 -mt-0.5">
                   Retail • Wholesale • Kirana
                 </span>
               </div>
             </Link>
 
-            {/* Location Selector Pill */}
+            {/* Location Selector Pill (Tablet & Desktop) */}
             <button
               onClick={() => setIsLocationModalOpen(true)}
               aria-label={`Delivery location: ${currentLocation.area}, ${currentLocation.city}. Click to change`}
-              className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50/80 hover:bg-stone-100/70 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50/80 hover:bg-stone-100/70 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
             >
               <MapPin className="w-4 h-4 text-forest-700 shrink-0" />
               <div className="min-w-0">

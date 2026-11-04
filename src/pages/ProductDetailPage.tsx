@@ -60,7 +60,7 @@ export const ProductDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-24 sm:pb-16">
       {/* Back navigation */}
       <div className="flex items-center justify-between">
         <button
@@ -368,6 +368,51 @@ export const ProductDetailPage: React.FC = () => {
             Visit Storefront
           </Button>
         </Link>
+      </div>
+
+      {/* Mobile Sticky Bottom Bar (Visible on mobile viewports only) */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/90 px-4 py-3 sm:hidden shadow-soft-lg flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">Total Price</div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-bold font-mono text-stone-900 leading-tight">₹{totalPrice}</span>
+            {savings > 0 && (
+              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded">Save ₹{savings}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center border border-stone-200 rounded-xl bg-stone-50 h-10 px-1">
+            <button
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              aria-label="Decrease quantity"
+              className="min-w-[32px] min-h-[32px] flex items-center justify-center text-stone-700 hover:bg-stone-200 rounded-lg transition-colors"
+            >
+              <Minus className="w-3.5 h-3.5" />
+            </button>
+            <span className="px-2 text-xs font-mono font-bold text-stone-900 min-w-[1.2rem] text-center">
+              {quantity}
+            </span>
+            <button
+              onClick={() => setQuantity(quantity + 1)}
+              aria-label="Increase quantity"
+              className="min-w-[32px] min-h-[32px] flex items-center justify-center text-stone-700 hover:bg-stone-200 rounded-lg transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleAdd}
+            icon={<ShoppingBag className="w-4 h-4" />}
+            className="min-h-[42px] px-3.5 text-xs font-bold"
+          >
+            Add • ₹{totalPrice}
+          </Button>
+        </div>
       </div>
     </div>
   );

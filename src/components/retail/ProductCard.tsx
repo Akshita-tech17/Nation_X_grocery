@@ -55,28 +55,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, mode = 'retai
           ) : null}
         </div>
 
-        {/* Subtle Action Buttons */}
+        {/* Subtle Action Buttons with Accessible Touch Targets */}
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
           <button
             onClick={() => setSelectedProductQuickView(product.id)}
             aria-label={`Preview ${product.name}`}
-            className="p-1.5 rounded-full bg-white/90 text-stone-600 hover:text-stone-900 hover:bg-white shadow-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600"
+            className="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full bg-white/95 text-stone-600 hover:text-stone-900 hover:bg-white shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 active:scale-95"
             title="Quick preview"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-4 h-4" />
           </button>
 
           <button
             onClick={() => toggleWishlist(product.id)}
             aria-label={isWishlisted ? `Remove ${product.name} from saved` : `Save ${product.name}`}
-            className={`p-1.5 rounded-full shadow-sm transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600 ${
+            className={`min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 active:scale-95 ${
               isWishlisted
                 ? 'bg-rose-50 text-rose-600'
-                : 'bg-white/90 text-stone-500 hover:text-rose-600 hover:bg-white'
+                : 'bg-white/95 text-stone-500 hover:text-rose-600 hover:bg-white'
             }`}
             title="Save for later"
           >
-            <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-rose-600' : ''}`} />
+            <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-rose-600 text-rose-600' : ''}`} />
           </button>
         </div>
       </div>
@@ -137,21 +137,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, mode = 'retai
 
           {/* Cart Stepper or Tactile Add Button */}
           {currentQuantity > 0 ? (
-            <div className="flex items-center bg-forest-900 text-white rounded-xl px-2 py-1 gap-2 shadow-sm">
+            <div className="flex items-center bg-forest-900 text-white rounded-xl shadow-sm h-9 px-1">
               <button
                 onClick={() => updateQuantity(product.id, currentQuantity - 1)}
                 aria-label={`Decrease quantity of ${product.name}`}
-                className="hover:text-emerald-300 p-0.5 transition-colors focus-visible:outline-none"
+                className="min-w-[32px] min-h-[32px] flex items-center justify-center hover:text-emerald-300 transition-colors focus-visible:outline-none"
               >
                 <Minus className="w-3.5 h-3.5" />
               </button>
-              <span className="text-xs font-bold font-mono min-w-[1.2rem] text-center">
+              <span className="text-xs font-bold font-mono min-w-[1.4rem] text-center px-1">
                 {currentQuantity}
               </span>
               <button
                 onClick={() => updateQuantity(product.id, currentQuantity + 1)}
                 aria-label={`Increase quantity of ${product.name}`}
-                className="hover:text-emerald-300 p-0.5 transition-colors focus-visible:outline-none"
+                className="min-w-[32px] min-h-[32px] flex items-center justify-center hover:text-emerald-300 transition-colors focus-visible:outline-none"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -161,7 +161,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, mode = 'retai
               onClick={() => addToCart(product, 1, mode)}
               disabled={!isAvailable}
               aria-label={isAvailable ? `Add ${product.name} to basket` : `${product.name} out of stock`}
-              className={`px-3.5 py-1.5 rounded-xl font-semibold text-xs transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 ${
+              className={`min-h-[36px] px-4 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 ${
                 isAvailable
                   ? 'bg-forest-900 hover:bg-forest-950 text-white shadow-sm'
                   : 'bg-stone-100 text-stone-600 cursor-not-allowed'

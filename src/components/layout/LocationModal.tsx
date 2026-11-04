@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from '../common/Modal';
-import { useStore, POPULAR_LOCATIONS, LocationInfo } from '../../context/StoreContext';
+import { useStore } from '../../context/StoreContext';
+import { POPULAR_LOCATIONS, LocationInfo } from '../../data/locations';
 import { MapPin, Navigation, Check } from 'lucide-react';
 import { Button } from '../common/Button';
 

@@ -211,7 +211,9 @@ export const ProductQuickViewModal: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center border border-warm-300 rounded-xl bg-warm-50 p-1">
                 <button
+                  type="button"
                   onClick={() => setSelectedQty(Math.max(1, selectedQty - 1))}
+                  aria-label="Decrease quantity"
                   className="p-1.5 hover:bg-white rounded-lg text-warm-700 transition-colors"
                 >
                   <Minus className="w-3.5 h-3.5" />
@@ -220,7 +222,9 @@ export const ProductQuickViewModal: React.FC = () => {
                   {selectedQty}
                 </span>
                 <button
+                  type="button"
                   onClick={() => setSelectedQty(selectedQty + 1)}
+                  aria-label="Increase quantity"
                   className="p-1.5 hover:bg-white rounded-lg text-warm-700 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />

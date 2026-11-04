@@ -7,6 +7,8 @@ import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Order } from '../../types';
+import { MERCHANTS } from '../../data/merchants';
+import { partitionCartIntoSuborders } from '../../utils/orderPartitioning';
 import {
   MapPin,
   Clock,
@@ -17,7 +19,8 @@ import {
   QrCode,
   Building,
   Check,
-  Package
+  Package,
+  Store
 } from 'lucide-react';
 
 export const CheckoutModal: React.FC = () => {
@@ -56,6 +59,21 @@ export const CheckoutModal: React.FC = () => {
       const newId = `NX-${Math.floor(10000 + Math.random() * 90000)}`;
       setPlacedOrderId(newId);
 
+      // Group items into separate merchant suborders (PDF Section 5.2)
+      const suborders = partitionCartIntoSuborders(cart, {
+        orderId: newId,
+        defaultArea: currentLocation.area,
+        defaultEta: currentLocation.eta,
+        hasWholesaleItems,
+        merchantsCatalog: MERCHANTS
+      });
+
+      const primaryStore = suborders[0] || {
+        storeId: 'store-sharma-kirana',
+        storeName: 'Sharmaji Kirana & Superstore'
+      };
+      const isMultiStore = suborders.length > 1;
+
       const newOrder: Order = {
         id: newId,
         date: 'Just now',
@@ -65,8 +83,9 @@ export const CheckoutModal: React.FC = () => {
         savings: totalSavings,
         orderType: hasWholesaleItems ? 'wholesale' : 'retail',
         status: 'placed',
-        storeId: 'store-sharma-kirana',
-        storeName: 'Sharmaji Kirana & Superstore',
+        storeId: primaryStore.storeId,
+        storeName: isMultiStore ? `Multi-Shop Order (${suborders.length} Stores)` : primaryStore.storeName,
+        suborders,
         deliveryAddress: {
           name,
           phone,
@@ -103,6 +122,18 @@ export const CheckoutModal: React.FC = () => {
     >
       {step === 1 && (
         <div className="space-y-4">
+          {new Set(cart.map(i => i.product.merchantId)).size > 1 && (
+            <div className="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200 text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Store className="w-4 h-4 text-forest-700 shrink-0" />
+                <span className="font-semibold text-stone-800">
+                  Multi-Shop Order: <strong className="text-forest-900">{new Set(cart.map(i => i.product.merchantId)).size} stores</strong> fulfilling
+                </span>
+              </div>
+              <Badge variant="forest" size="sm">Independent Dispatch</Badge>
+            </div>
+          )}
+
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-forest-700" />
             1. Delivery Address & Contact

@@ -82,11 +82,17 @@ export const StoreComparisonPage: React.FC = () => {
 
       {/* Comparison Table / Matrix */}
       <div className="bg-white rounded-3xl border border-stone-200/80 shadow-sm overflow-hidden">
+        {/* Mobile Swipe Hint */}
+        <div className="sm:hidden px-4 py-2 bg-stone-50/90 border-b border-stone-200 text-[11px] font-semibold text-stone-600 flex items-center justify-between">
+          <span>Comparing {storesToCompare.length} Stores</span>
+          <span className="text-forest-800 font-bold flex items-center gap-1">Swipe sideways →</span>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[700px]">
             <thead>
               <tr className="bg-stone-50 border-b border-stone-200">
-                <th className="py-4 px-5 font-bold text-stone-500 uppercase tracking-wider text-[11px] w-48">
+                <th className="py-4 px-5 font-bold text-stone-500 uppercase tracking-wider text-[11px] w-48 sticky left-0 bg-stone-50 z-20 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
                   Feature / Store
                 </th>
                 {storesToCompare.map(store => (
@@ -123,7 +129,9 @@ export const StoreComparisonPage: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {/* Store Type */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600">Store Classification</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Store Classification
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5 font-bold text-stone-800 capitalize">
                     {s.type.replace('_', ' ')}
@@ -133,7 +141,9 @@ export const StoreComparisonPage: React.FC = () => {
 
               {/* Delivery ETA */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600">Express Delivery Time</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Express Delivery Time
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5">
                     <span className="inline-flex items-center gap-1 text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
@@ -146,7 +156,9 @@ export const StoreComparisonPage: React.FC = () => {
 
               {/* Distance */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600">Distance from Destination</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Distance from Destination
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5 font-bold text-stone-900 font-mono">
                     <div className="flex items-center gap-1">
@@ -159,7 +171,9 @@ export const StoreComparisonPage: React.FC = () => {
 
               {/* Customer Rating */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600">Customer Rating</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Customer Rating
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5">
                     <div className="flex items-center gap-1 font-bold text-stone-900">
@@ -173,7 +187,9 @@ export const StoreComparisonPage: React.FC = () => {
 
               {/* Min Order */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600">Minimum Order Amount</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Minimum Order Amount
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5 font-bold font-mono text-stone-900">
                     ₹{s.minOrder}
@@ -183,7 +199,9 @@ export const StoreComparisonPage: React.FC = () => {
 
               {/* Store Services & Features */}
               <tr className="hover:bg-stone-50/50">
-                <td className="py-3.5 px-5 font-semibold text-stone-600 align-top">Services & Highlights</td>
+                <td className="py-3.5 px-5 font-semibold text-stone-600 align-top sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200">
+                  Services & Highlights
+                </td>
                 {storesToCompare.map(s => (
                   <td key={s.id} className="py-3.5 px-5 align-top">
                     <ul className="space-y-1.5">

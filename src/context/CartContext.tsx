@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem, BulkTier } from '../types';
+import { Product, CartItem } from '../types';
+import { getEffectiveTierAndPrice, calculateCartTotals } from '../utils/pricing';
 
 interface CartContextType {
   cart: CartItem[];
@@ -50,28 +51,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, 2800);
   };
 
-  const getEffectiveTierAndPrice = (product: Product, qty: number, mode: 'retail' | 'wholesale'): { unitPrice: number; tier?: BulkTier } => {
-    if (mode === 'wholesale' && product.bulkTiers && product.bulkTiers.length > 0) {
-      // Find highest tier matched
-      const eligibleTiers = product.bulkTiers
-        .filter(t => qty >= t.minQty)
-        .sort((a, b) => b.minQty - a.minQty);
-
-      if (eligibleTiers.length > 0) {
-        return { unitPrice: eligibleTiers[0].pricePerUnit, tier: eligibleTiers[0] };
-      }
-      // If below lowest tier but in wholesale mode, default to first tier price or retail
-      return { unitPrice: product.bulkTiers[0].pricePerUnit, tier: product.bulkTiers[0] };
-    }
-    return { unitPrice: product.retailPrice };
-  };
-
   const addToCart = (product: Product, quantity = 1, mode: 'retail' | 'wholesale' = 'retail') => {
     setCart(prev => {
       const existingIndex = prev.findIndex(item => item.product.id === product.id);
       
       const newQty = existingIndex > -1 ? prev[existingIndex].quantity + quantity : quantity;
-      const { unitPrice, tier } = getEffectiveTierAndPrice(product, newQty, mode);
+      const { unitPrice, tier, effectiveMode } = getEffectiveTierAndPrice(product, newQty, mode);
 
       if (existingIndex > -1) {
         const updated = [...prev];
@@ -81,7 +66,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           unitPrice,
           appliedTier: tier,
           totalPrice: unitPrice * newQty,
-          mode: mode || updated[existingIndex].mode
+          mode: effectiveMode
         };
         return updated;
       } else {
@@ -90,7 +75,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           {
             product,
             quantity: newQty,
-            mode,
+            mode: effectiveMode,
             appliedTier: tier,
             unitPrice,
             totalPrice: unitPrice * newQty
@@ -99,7 +84,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    showToast(`Added ${quantity}x ${product.name.slice(0, 24)}... to basket`);
+    const isBulkUnlocked = product.bulkTiers && product.bulkTiers.some(t => quantity >= t.minQty);
+    showToast(
+      isBulkUnlocked
+        ? `🎉 Added ${quantity}x ${product.name.slice(0, 20)}... with wholesale discount!`
+        : `Added ${quantity}x ${product.name.slice(0, 24)}... to basket`
+    );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -111,13 +101,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart(prev =>
       prev.map(item => {
         if (item.product.id === productId) {
-          const { unitPrice, tier } = getEffectiveTierAndPrice(item.product, quantity, item.mode);
+          const { unitPrice, tier, effectiveMode } = getEffectiveTierAndPrice(item.product, quantity, item.mode);
           return {
             ...item,
             quantity,
             unitPrice,
             appliedTier: tier,
-            totalPrice: unitPrice * quantity
+            totalPrice: unitPrice * quantity,
+            mode: effectiveMode
           };
         }
         return item;
@@ -133,10 +124,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart([]);
   };
 
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
-  const originalTotal = cart.reduce((sum, item) => sum + (item.product.originalPrice * item.quantity), 0);
-  const totalSavings = Math.max(0, originalTotal - subtotal);
+  const { totalItems, subtotal, originalTotal, totalSavings } = calculateCartTotals(cart);
 
   return (
     <CartContext.Provider
