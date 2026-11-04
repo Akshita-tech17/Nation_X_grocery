@@ -58,35 +58,31 @@ export const ProductManagementTable: React.FC = () => {
     setPurchaseCost(125);
     setStockQuantity(40);
     setOrigin('Madhya Pradesh, India');
-    setImage('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80');
-    setDescription('Fresh pantry grocery staple sourced directly from authentic growers.');
+    setImage('https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80');
+    setDescription('High quality culinary essential.');
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (p: Product) => {
-    setEditingProduct(p);
-    setName(p.name);
-    setHindiName(p.hindiName || '');
-    setBrand(p.brand);
-    setCategory(p.category);
-    setUnit(p.unit);
-    setPackSize(p.packSize || p.unit);
-    setRetailPrice(p.retailPrice);
-    setOriginalPrice(p.originalPrice);
-    setPurchaseCost(p.purchaseCost || Math.round(p.retailPrice * 0.8));
-    setStockQuantity(p.stockQuantity);
-    setOrigin(p.origin);
-    setImage(p.image);
-    setDescription(p.description);
+  const handleOpenEditModal = (prod: Product) => {
+    setEditingProduct(prod);
+    setName(prod.name);
+    setHindiName(prod.hindiName || '');
+    setBrand(prod.brand);
+    setCategory(prod.category);
+    setUnit(prod.unit);
+    setPackSize(prod.packSize || prod.unit);
+    setRetailPrice(prod.retailPrice);
+    setOriginalPrice(prod.originalPrice);
+    setPurchaseCost(prod.purchaseCost || Math.round(prod.retailPrice * 0.8));
+    setStockQuantity(prod.stockQuantity);
+    setOrigin(prod.origin);
+    setImage(prod.image);
+    setDescription(prod.description);
     setIsModalOpen(true);
   };
 
   const handleSubmitForm = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !brand || retailPrice <= 0) {
-      alert('Please fill out all required fields with valid values.');
-      return;
-    }
 
     const inStock = Number(stockQuantity) > 0;
     const availabilityStatus = !inStock ? 'unavailable' : Number(stockQuantity) < 10 ? 'low_stock' : 'available';
@@ -146,23 +142,23 @@ export const ProductManagementTable: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Search, Filter & Add Product Button */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-card rounded-2xl border border-border p-4 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 flex-1">
           <div className="relative max-w-xs w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-600" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder="Search product name or brand..."
-              className="w-full pl-9 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+              className="w-full pl-9 pr-3 py-1.5 bg-card border border-border rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="bg-stone-50 border border-stone-200 rounded-xl px-3 py-1.5 text-xs font-medium text-stone-800 focus:outline-none focus:ring-1 focus:ring-forest-600"
+            className="bg-card border border-border rounded-xl px-3 py-1.5 text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="all">All Categories ({products.length})</option>
             {CATEGORIES.map(c => (
@@ -184,10 +180,10 @@ export const ProductManagementTable: React.FC = () => {
       </div>
 
       {/* Catalog Table */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-2xl border border-border shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-600 uppercase font-semibold text-[11px] tracking-wider">
+            <thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px] tracking-wider">
               <tr>
                 <th className="py-3.5 px-4">Item & Origin</th>
                 <th className="py-3.5 px-4">Category</th>
@@ -199,57 +195,57 @@ export const ProductManagementTable: React.FC = () => {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-border">
               {filteredProducts.map(p => (
-                <tr key={p.id} className="hover:bg-stone-50/50 transition-colors">
+                <tr key={p.id} className="hover:bg-muted/30 transition-colors">
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
                       <img
                         src={p.image}
                         alt={p.name}
-                        className="w-10 h-10 object-cover rounded-lg border border-stone-200 shrink-0"
+                        className="w-10 h-10 object-cover rounded-lg border border-border shrink-0"
                       />
                       <div className="min-w-0">
-                        <div className="font-bold text-stone-900 truncate max-w-xs" title={p.name}>
+                        <div className="font-semibold text-foreground truncate max-w-xs" title={p.name}>
                           {p.name}
                         </div>
-                        <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
+                        <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
                           <span>{p.brand}</span>
                           <span>•</span>
-                          <span className="text-forest-700">{p.origin}</span>
+                          <span className="text-primary">{p.origin}</span>
                         </div>
                       </div>
                     </div>
                   </td>
 
-                  <td className="py-3 px-4 text-stone-600 font-medium">
+                  <td className="py-3 px-4 text-muted-foreground font-medium">
                     {p.category}
                   </td>
 
-                  <td className="py-3 px-4 text-stone-700 font-semibold">
+                  <td className="py-3 px-4 text-foreground font-semibold">
                     {p.packSize || p.unit}
                   </td>
 
-                  <td className="py-3 px-4 font-bold text-forest-950 font-mono">
+                  <td className="py-3 px-4 font-bold text-foreground font-mono">
                     ₹{p.retailPrice}
                   </td>
 
-                  <td className="py-3 px-4 font-semibold text-stone-600 font-mono bg-stone-50/80">
+                  <td className="py-3 px-4 font-semibold text-muted-foreground font-mono bg-muted/30">
                     ₹{p.purchaseCost || Math.round(p.retailPrice * 0.8)}
                   </td>
 
-                  <td className="py-3 px-4 text-stone-400 line-through font-mono">
+                  <td className="py-3 px-4 text-muted-foreground line-through font-mono">
                     ₹{p.originalPrice}
                   </td>
 
                   <td className="py-3 px-4">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                      className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
                         p.inStock && p.stockQuantity > 5
-                          ? 'bg-emerald-50 text-emerald-800'
+                          ? 'bg-brand-soft text-primary border-primary/20'
                           : p.inStock
-                          ? 'bg-amber-50 text-amber-800'
-                          : 'bg-rose-50 text-rose-800'
+                          ? 'bg-amber-500/10 text-amber-900 border-amber-500/20'
+                          : 'bg-destructive/10 text-destructive border-destructive/20'
                       }`}
                     >
                       {p.inStock ? `${p.stockQuantity} in stock` : 'Out of stock'}
@@ -260,7 +256,7 @@ export const ProductManagementTable: React.FC = () => {
                     <div className="flex items-center justify-end gap-1.5">
                       <button
                         onClick={() => handleOpenEditModal(p)}
-                        className="p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
                         title="Edit product"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -271,7 +267,7 @@ export const ProductManagementTable: React.FC = () => {
                             deleteProduct(p.id);
                           }
                         }}
-                        className="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                         title="Delete product"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -296,7 +292,7 @@ export const ProductManagementTable: React.FC = () => {
         <form onSubmit={handleSubmitForm} className="space-y-4 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <label className="font-semibold text-stone-700 block mb-1">
+              <label className="font-semibold text-foreground block mb-1">
                 Product Title (Full Grocery Specification) *
               </label>
               <input
@@ -305,28 +301,28 @@ export const ProductManagementTable: React.FC = () => {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Fortune Sunlite Refined Sunflower Oil Pouch"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Brand Name *</label>
+              <label className="font-semibold text-foreground block mb-1">Brand Name *</label>
               <input
                 type="text"
                 required
                 value={brand}
                 onChange={e => setBrand(e.target.value)}
                 placeholder="e.g. Fortune"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Category *</label>
+              <label className="font-semibold text-foreground block mb-1">Category *</label>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               >
                 {CATEGORIES.map(c => (
                   <option key={c.id} value={c.id}>
@@ -337,7 +333,7 @@ export const ProductManagementTable: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Pack Size / Display Unit *</label>
+              <label className="font-semibold text-foreground block mb-1">Pack Size / Display Unit *</label>
               <input
                 type="text"
                 required
@@ -347,93 +343,93 @@ export const ProductManagementTable: React.FC = () => {
                   setUnit(e.target.value);
                 }}
                 placeholder="e.g. 1 Litre Pouch"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Origin / Farm Source</label>
+              <label className="font-semibold text-foreground block mb-1">Origin / Farm Source</label>
               <input
                 type="text"
                 value={origin}
                 onChange={e => setOrigin(e.target.value)}
                 placeholder="e.g. Gujarat, India"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Retail Selling Price (₹) *</label>
+              <label className="font-semibold text-foreground block mb-1">Retail Selling Price (₹) *</label>
               <input
                 type="number"
                 required
                 min="1"
                 value={retailPrice}
                 onChange={e => setRetailPrice(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-mono font-bold focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground font-mono font-bold focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Original MRP (₹) *</label>
+              <label className="font-semibold text-foreground block mb-1">Original MRP (₹) *</label>
               <input
                 type="number"
                 required
                 min="1"
                 value={originalPrice}
                 onChange={e => setOriginalPrice(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-mono focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Purchase Cost (Protected Merchant-Only) *</label>
+              <label className="font-semibold text-foreground block mb-1">Purchase Cost (Protected Merchant-Only) *</label>
               <input
                 type="number"
                 required
                 min="1"
                 value={purchaseCost}
                 onChange={e => setPurchaseCost(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-amber-50/50 border border-amber-200 rounded-xl text-stone-900 font-mono focus:outline-none focus:ring-1 focus:ring-amber-600"
+                className="w-full px-3 py-2 bg-brand-soft/30 border border-primary/20 rounded-xl text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Initial Stock Units *</label>
+              <label className="font-semibold text-foreground block mb-1">Initial Stock Units *</label>
               <input
                 type="number"
                 required
                 min="0"
                 value={stockQuantity}
                 onChange={e => setStockQuantity(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-mono focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="font-semibold text-stone-700 block mb-1">Product Photography Image URL</label>
+              <label className="font-semibold text-foreground block mb-1">Product Photography Image URL</label>
               <input
                 type="url"
                 value={image}
                 onChange={e => setImage(e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="font-semibold text-stone-700 block mb-1">Short Product Description</label>
+              <label className="font-semibold text-foreground block mb-1">Short Product Description</label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Grade A staple suitable for daily cooking..."
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
           </div>
 
-          <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
+          <div className="pt-3 flex items-center justify-end gap-2 border-t border-border">
             <Button variant="ghost" size="sm" type="button" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>

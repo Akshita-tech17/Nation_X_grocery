@@ -137,6 +137,7 @@ export interface CartItem {
   totalPrice: number;
   availabilityStatus: AvailabilityStatus;
   stockUpdatedAt?: string;
+  isStaleInventory?: boolean;
 }
 
 export interface DeliveryAddress {

@@ -21,23 +21,23 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const variantStyles = {
     primary:
-      'bg-forest-900 hover:bg-forest-950 text-white shadow-sm active:scale-[0.98] border border-forest-900 focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2',
+      'bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-card active:scale-[0.98] border border-transparent focus-visible:ring-3 focus-visible:ring-ring/50',
     secondary:
-      'bg-forest-50 hover:bg-forest-100 text-forest-900 border border-forest-200/80 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-forest-600',
+      'bg-brand-soft hover:bg-brand-soft/80 text-primary font-medium border border-primary/20 active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-ring/50',
     outline:
-      'bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 hover:border-stone-300 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-forest-600',
+      'bg-card hover:bg-muted text-foreground border border-border hover:border-border/80 font-medium shadow-card active:scale-[0.98] focus-visible:ring-3 focus-visible:ring-ring/50',
     ghost:
-      'bg-transparent hover:bg-stone-100 text-stone-700 hover:text-stone-900 active:scale-[0.98]',
+      'bg-transparent hover:bg-muted text-foreground/80 hover:text-foreground font-medium active:scale-[0.98]',
     amber:
-      'bg-amber-600 hover:bg-amber-700 text-white shadow-sm active:scale-[0.98] border border-amber-600 focus-visible:ring-2 focus-visible:ring-amber-500',
+      'bg-marigold hover:bg-marigold/90 text-marigold-foreground font-medium shadow-card active:scale-[0.98] border border-transparent focus-visible:ring-3 focus-visible:ring-marigold/50',
     danger:
-      'bg-rose-600 hover:bg-rose-700 text-white shadow-sm active:scale-[0.98] border border-rose-600'
+      'bg-destructive hover:bg-destructive/90 text-white font-medium shadow-card active:scale-[0.98] border border-transparent'
   };
 
   const sizeStyles = {
-    sm: 'text-xs px-3 py-1.5 rounded-lg gap-1.5 font-semibold',
-    md: 'text-sm px-4 py-2 rounded-xl gap-2 font-semibold',
-    lg: 'text-base px-5 py-2.5 rounded-xl gap-2.5 font-bold'
+    sm: 'text-xs px-3 py-1.5 rounded-lg gap-1.5 font-medium',
+    md: 'text-sm px-4 py-2 rounded-xl gap-2 font-medium',
+    lg: 'text-base px-5 py-2.5 rounded-xl gap-2.5 font-semibold'
   };
 
   return (

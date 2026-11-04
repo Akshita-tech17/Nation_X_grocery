@@ -7,7 +7,6 @@ import {
   MapPin,
   Search,
   Store,
-  Boxes,
   Heart,
   ChevronDown,
   Menu,
@@ -44,26 +43,28 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 transition-all">
+    <header className="sticky top-0 z-40 bg-background border-b border-border transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-4 sm:gap-6">
+        <div className="flex items-center justify-between h-16 gap-4 sm:gap-6">
           {/* Left: Brand & Location */}
           <div className="flex items-center gap-5 shrink-0">
             <Link
               to="/"
-              className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 rounded-xl"
+              className="inline-flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 rounded-xl"
             >
-              <div className="w-10 h-10 rounded-xl bg-forest-900 text-white flex items-center justify-center shadow-sm group-hover:bg-forest-950 transition-colors">
-                <Boxes className="w-5 h-5 text-emerald-400" />
-              </div>
+              <svg viewBox="0 0 32 32" aria-hidden="true" className="w-8 h-8 shrink-0">
+                <rect width="32" height="32" rx="9" fill="#007a75"></rect>
+                <path d="M9 9 L23 23" stroke="#fdfaf3" strokeWidth="3.4" strokeLinecap="round"></path>
+                <path d="M23 9 L9 23" stroke="#f7b828" strokeWidth="3.4" strokeLinecap="round"></path>
+              </svg>
               <div className="flex flex-col">
-                <span className="font-display font-extrabold text-xl tracking-tight text-stone-900 flex items-center gap-1">
-                  Nation<span className="text-forest-700">X</span>
-                  <span className="text-[11px] font-semibold text-forest-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 uppercase tracking-normal">
+                <span className="font-heading font-bold text-xl tracking-tight text-foreground flex items-center gap-1.5">
+                  Nation<span className="text-primary">X</span>
+                  <span className="text-[10px] font-semibold text-primary bg-brand-soft px-1.5 py-0.5 rounded border border-primary/20 uppercase tracking-wide">
                     Grocery
                   </span>
                 </span>
-                <span className="text-[10px] font-medium text-stone-600 -mt-0.5">
+                <span className="text-[10px] font-medium text-muted-foreground -mt-0.5">
                   Retail • Wholesale • Kirana
                 </span>
               </div>
@@ -73,14 +74,14 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setIsLocationModalOpen(true)}
               aria-label={`Delivery location: ${currentLocation.area}, ${currentLocation.city}. Click to change`}
-              className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-200 hover:border-stone-300 bg-stone-50/80 hover:bg-stone-100/70 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600"
+              className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border hover:border-input bg-card hover:bg-muted text-left transition-colors shadow-card focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <MapPin className="w-4 h-4 text-forest-700 shrink-0" />
+              <MapPin className="w-4 h-4 text-primary shrink-0" />
               <div className="min-w-0">
-                <div className="text-[10px] font-semibold text-stone-600 flex items-center gap-1 leading-tight">
-                  Delivering to <ChevronDown className="w-3 h-3 text-stone-600" />
+                <div className="text-[10px] font-medium text-muted-foreground flex items-center gap-1 leading-tight">
+                  Delivering to <ChevronDown className="w-3 h-3 text-muted-foreground" />
                 </div>
-                <div className="text-xs font-bold text-stone-900 truncate max-w-[130px]">
+                <div className="text-xs font-semibold text-foreground truncate max-w-[130px]">
                   {currentLocation.area}
                 </div>
               </div>
@@ -90,21 +91,21 @@ export const Header: React.FC = () => {
           {/* Center: Search Bar */}
           <div className="flex-1 max-w-xs xl:max-w-sm hidden md:block">
             <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-600" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Search atta, basmati, ghee..."
                 aria-label="Search groceries"
-                className="w-full pl-10 pr-10 py-2 bg-stone-50 border border-stone-200 hover:border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 placeholder:text-stone-600 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:bg-white transition-all"
+                className="w-full pl-10 pr-10 py-2 bg-card border border-border hover:border-input rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:bg-card shadow-card transition-all"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-600 hover:text-stone-900 p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -113,22 +114,22 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Center-Right: Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map(link => {
               const isActive = location.pathname === link.path;
               return (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                     isActive
-                      ? 'text-forest-900 bg-emerald-50/80 font-bold'
-                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+                      ? 'text-primary bg-brand-soft font-semibold'
+                      : 'text-foreground/80 hover:text-foreground hover:bg-muted'
                   }`}
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/80 px-1.5 py-0.2 rounded-full">
+                    <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.2 rounded-full">
                       {link.badge}
                     </span>
                   )}
@@ -142,9 +143,9 @@ export const Header: React.FC = () => {
             {/* Merchant Hub Direct Access */}
             <Link
               to="/merchant"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-stone-200 hover:border-forest-700 text-stone-700 hover:text-forest-900 bg-white hover:bg-forest-50/40 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-border hover:border-primary/40 text-foreground hover:text-primary bg-card hover:bg-brand-soft/40 shadow-card transition-colors"
             >
-              <Store className="w-3.5 h-3.5 text-forest-700" />
+              <Store className="w-3.5 h-3.5 text-primary" />
               <span>Merchant Hub</span>
             </Link>
 
@@ -152,12 +153,12 @@ export const Header: React.FC = () => {
             <Link
               to="/browse"
               aria-label="Saved items"
-              className="p-2 rounded-lg text-stone-600 hover:text-rose-600 hover:bg-stone-50 relative transition-colors"
+              className="p-2 rounded-xl text-muted-foreground hover:text-primary hover:bg-muted relative transition-colors"
               title="Saved Items"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-marigold text-marigold-foreground text-[10px] font-bold flex items-center justify-center">
                   {wishlist.length}
                 </span>
               )}
@@ -167,12 +168,12 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setIsCartOpen(true)}
               aria-label={`Open basket, ${totalItems} items`}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-forest-900 hover:bg-forest-950 text-white font-semibold text-xs shadow-sm transition-all active:scale-[0.98]"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs shadow-card transition-all active:scale-[0.98]"
             >
-              <ShoppingBag className="w-4 h-4 text-emerald-300" />
+              <ShoppingBag className="w-4 h-4 text-primary-foreground/90" />
               <span className="font-mono font-bold">₹{subtotal}</span>
               {totalItems > 0 && (
-                <span className="bg-emerald-500 text-forest-950 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                <span className="bg-primary-foreground text-primary text-[10px] font-bold px-1.5 py-0.2 rounded-full">
                   {totalItems}
                 </span>
               )}
@@ -182,7 +183,7 @@ export const Header: React.FC = () => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-              className="p-2 rounded-lg text-stone-700 hover:bg-stone-100 lg:hidden"
+              className="p-2 rounded-xl text-foreground hover:bg-muted border border-border lg:hidden"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -191,16 +192,16 @@ export const Header: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-stone-200 space-y-3">
+          <div className="lg:hidden py-4 border-t border-border space-y-3">
             <form onSubmit={handleSearchSubmit}>
               <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-600" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900"
+                  className="w-full pl-10 pr-4 py-2 bg-card border border-border rounded-xl text-xs text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </form>
@@ -210,13 +211,13 @@ export const Header: React.FC = () => {
                 setIsLocationModalOpen(true);
                 setMobileMenuOpen(false);
               }}
-              className="w-full text-left p-2.5 rounded-lg border border-stone-200 bg-stone-50 text-xs font-semibold text-stone-800 flex items-center justify-between"
+              className="w-full text-left p-2.5 rounded-xl border border-border bg-card text-xs font-medium text-foreground flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-forest-700" />
+                <MapPin className="w-4 h-4 text-primary" />
                 <span>Deliver to: {currentLocation.area}</span>
               </div>
-              <span className="text-forest-700 text-[11px] font-bold">Change</span>
+              <span className="text-primary text-[11px] font-bold">Change</span>
             </button>
 
             <div className="grid gap-1 pt-1">
@@ -225,11 +226,11 @@ export const Header: React.FC = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2.5 rounded-lg text-xs font-semibold text-stone-800 hover:bg-stone-50 flex items-center justify-between"
+                  className="p-2.5 rounded-xl text-xs font-medium text-foreground hover:bg-muted flex items-center justify-between"
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold text-primary bg-brand-soft border border-primary/20 px-2 py-0.5 rounded-full">
                       {link.badge}
                     </span>
                   )}
@@ -238,9 +239,9 @@ export const Header: React.FC = () => {
               <Link
                 to="/merchant"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2.5 rounded-lg text-xs font-bold text-forest-900 bg-emerald-50 flex items-center gap-2"
+                className="p-2.5 rounded-xl text-xs font-semibold text-primary bg-brand-soft flex items-center gap-2"
               >
-                <Store className="w-4 h-4 text-forest-700" />
+                <Store className="w-4 h-4 text-primary" />
                 <span>Merchant Hub Portal</span>
               </Link>
             </div>

@@ -175,11 +175,11 @@ export const CheckoutModal: React.FC = () => {
     >
       {/* Step Indicator */}
       {step < 4 && (
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-stone-100 text-xs font-semibold">
-          <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-forest-800' : 'text-stone-400'}`}>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-border text-xs font-semibold">
+          <div className={`flex items-center gap-1.5 ${step >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step >= 1 ? 'bg-forest-900 text-white' : 'bg-stone-200 text-stone-600'
+                step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               1
@@ -187,12 +187,12 @@ export const CheckoutModal: React.FC = () => {
             <span>Delivery Address</span>
           </div>
 
-          <div className="w-10 h-0.5 bg-stone-200" />
+          <div className="w-10 h-0.5 bg-border" />
 
-          <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-forest-800' : 'text-stone-400'}`}>
+          <div className={`flex items-center gap-1.5 ${step >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step >= 2 ? 'bg-forest-900 text-white' : 'bg-stone-200 text-stone-600'
+                step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               2
@@ -200,12 +200,12 @@ export const CheckoutModal: React.FC = () => {
             <span>Suborders Review</span>
           </div>
 
-          <div className="w-10 h-0.5 bg-stone-200" />
+          <div className="w-10 h-0.5 bg-border" />
 
-          <div className={`flex items-center gap-1.5 ${step >= 3 ? 'text-forest-800' : 'text-stone-400'}`}>
+          <div className={`flex items-center gap-1.5 ${step >= 3 ? 'text-primary' : 'text-muted-foreground'}`}>
             <span
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                step >= 3 ? 'bg-forest-900 text-white' : 'bg-stone-200 text-stone-600'
+                step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
               }`}
             >
               3
@@ -219,82 +219,82 @@ export const CheckoutModal: React.FC = () => {
       {step === 1 && (
         <div className="space-y-5 text-xs sm:text-sm">
           <div className="space-y-4">
-            <h3 className="font-bold text-stone-900 text-sm">Where should we deliver?</h3>
+            <h3 className="font-bold text-foreground text-sm">Where should we deliver?</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1">Full Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  className="w-full px-3 py-2 bg-card border border-input rounded-xl text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Phone Number</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1">Phone Number</label>
                 <input
                   type="text"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-forest-600"
+                  className="w-full px-3 py-2 bg-card border border-input rounded-xl text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-stone-600 mb-1">Street Address / House / Flat</label>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1">Street Address / House / Flat</label>
               <input
                 type="text"
                 value={street}
                 onChange={e => setStreet(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-forest-600"
+                className="w-full px-3 py-2 bg-card border border-input rounded-xl text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Area / Locality</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1">Area / Locality</label>
                 <input
                   type="text"
                   disabled
                   value={currentLocation.area}
-                  className="w-full px-3 py-2 border border-stone-200 bg-stone-100 rounded-xl text-xs text-stone-600"
+                  className="w-full px-3 py-2 border border-border bg-muted/50 rounded-xl text-xs text-muted-foreground cursor-not-allowed"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">City</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1">City</label>
                 <input
                   type="text"
                   disabled
                   value={currentLocation.city}
-                  className="w-full px-3 py-2 border border-stone-200 bg-stone-100 rounded-xl text-xs text-stone-600"
+                  className="w-full px-3 py-2 border border-border bg-muted/50 rounded-xl text-xs text-muted-foreground cursor-not-allowed"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Pincode</label>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1">Pincode</label>
                 <input
                   type="text"
                   disabled
                   value={currentLocation.pincode}
-                  className="w-full px-3 py-2 border border-stone-200 bg-stone-100 rounded-xl text-xs text-stone-600"
+                  className="w-full px-3 py-2 border border-border bg-muted/50 rounded-xl text-xs text-muted-foreground cursor-not-allowed"
                 />
               </div>
             </div>
 
             {/* Address Type Buttons */}
             <div>
-              <label className="block text-xs font-semibold text-stone-600 mb-1.5">Address Type</label>
+              <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Address Type</label>
               <div className="flex gap-2">
                 {(['home', 'work', 'business'] as const).map(type => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setAddressType(type)}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold capitalize transition-all ${
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold capitalize transition-all cursor-pointer ${
                       addressType === type
-                        ? 'bg-forest-900 text-white border-forest-900'
-                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                        ? 'bg-primary text-primary-foreground border-primary shadow-xs'
+                        : 'bg-card border-border text-foreground hover:bg-muted/40'
                     }`}
                   >
                     {type}
@@ -305,30 +305,30 @@ export const CheckoutModal: React.FC = () => {
 
             {/* GST & Business Fields if Business Address or Wholesale Items */}
             {(addressType === 'business' || hasWholesaleItems) && (
-              <div className="p-3.5 bg-blue-50/70 border border-blue-200/80 rounded-2xl space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-900">
-                  <Building className="w-4 h-4 text-blue-700" />
+              <div className="p-3.5 bg-brand-soft/50 border border-primary/20 rounded-2xl space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                  <Building className="w-4 h-4 text-primary" />
                   <span>Commercial Tax Invoice Details</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">Business Name</label>
+                    <label className="block text-xs font-semibold text-foreground mb-1">Business Name</label>
                     <input
                       type="text"
                       placeholder="e.g. Royal Bengal Kitchen LLP"
                       value={businessName}
                       onChange={e => setBusinessName(e.target.value)}
-                      className="w-full px-3 py-2 border border-blue-200 bg-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full px-3 py-2 border border-input bg-card rounded-xl text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-blue-900 mb-1">GSTIN Number</label>
+                    <label className="block text-xs font-semibold text-foreground mb-1">GSTIN Number</label>
                     <input
                       type="text"
                       placeholder="29AAAAA0000A1Z5"
                       value={gstNumber}
                       onChange={e => setGstNumber(e.target.value)}
-                      className="w-full px-3 py-2 border border-blue-200 bg-white rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="w-full px-3 py-2 border border-input bg-card rounded-xl text-xs text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -354,13 +354,13 @@ export const CheckoutModal: React.FC = () => {
       {step === 2 && (
         <div className="space-y-5 text-xs sm:text-sm">
           {validationIssues.length > 0 && (
-            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900">
-                <AlertCircle className="w-4 h-4 text-amber-700" />
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900 dark:text-amber-300">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
                 <span>Inventory & Freshness Notice</span>
               </div>
               {validationIssues.map((issue, idx) => (
-                <p key={idx} className="text-xs text-amber-800">
+                <p key={idx} className="text-xs text-amber-800 dark:text-amber-400">
                   • {issue}
                 </p>
               ))}
@@ -368,33 +368,33 @@ export const CheckoutModal: React.FC = () => {
           )}
 
           <div>
-            <h3 className="font-bold text-stone-900 text-sm mb-1">Review Coordinated Merchant Suborders</h3>
-            <p className="text-xs text-stone-500">
+            <h3 className="font-bold text-foreground text-sm mb-1">Review Coordinated Merchant Suborders</h3>
+            <p className="text-xs text-muted-foreground">
               Each shop fulfills independently to guarantee freshness, correct invoicing, and local accountability.
             </p>
           </div>
 
           <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
             {merchantGroups.map((group, idx) => (
-              <div key={group.merchantId} className="p-3.5 border border-stone-200 rounded-2xl bg-stone-50/60 space-y-2.5">
-                <div className="flex items-center justify-between border-b border-stone-200/80 pb-2">
+              <div key={group.merchantId} className="p-3.5 border border-border rounded-2xl bg-card shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between border-b border-border pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-md bg-forest-900 text-white flex items-center justify-center text-[10px] font-bold">
+                    <span className="w-5 h-5 rounded-md bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold">
                       {idx + 1}
                     </span>
-                    <span className="font-bold text-stone-900 text-xs">{group.merchantName}</span>
+                    <span className="font-bold text-foreground text-xs">{group.merchantName}</span>
                   </div>
-                  <span className="text-xs font-bold text-forest-900">₹{group.subtotal}</span>
+                  <span className="text-xs font-bold text-primary">₹{group.subtotal}</span>
                 </div>
 
                 <div className="space-y-1.5">
                   {group.items.map(item => (
-                    <div key={item.offeringId} className="flex items-center justify-between text-xs text-stone-700">
+                    <div key={item.offeringId} className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-2 truncate max-w-xs">
-                        <span className="font-semibold text-stone-900">{item.quantity}x</span>
+                        <span className="font-semibold text-foreground">{item.quantity}x</span>
                         <span className="truncate">{item.product.name} ({item.product.packSize})</span>
                       </div>
-                      <span className="font-medium text-stone-900">₹{item.totalPrice}</span>
+                      <span className="font-medium text-foreground">₹{item.totalPrice}</span>
                     </div>
                   ))}
                 </div>
@@ -403,28 +403,28 @@ export const CheckoutModal: React.FC = () => {
           </div>
 
           {/* Delivery Slot Selection */}
-          <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2">
-            <span className="font-bold text-xs text-stone-800">Preferred Coordinated Dispatch Window</span>
+          <div className="p-3 bg-secondary/40 border border-border rounded-xl space-y-2">
+            <span className="font-bold text-xs text-foreground">Preferred Coordinated Dispatch Window</span>
             <div className="grid grid-cols-2 gap-2">
               {['Express 15-25 Mins (Fastest)', 'Today 2:00 PM - 5:00 PM'].map(slot => (
                 <button
                   key={slot}
                   type="button"
                   onClick={() => setSelectedSlot(slot)}
-                  className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
+                  className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all cursor-pointer ${
                     selectedSlot === slot
-                      ? 'bg-white border-forest-800 text-forest-900 ring-2 ring-forest-800/20'
-                      : 'bg-white/60 border-stone-200 text-stone-600 hover:bg-white'
+                      ? 'bg-card border-primary text-primary ring-2 ring-primary/20 shadow-xs'
+                      : 'bg-card/70 border-border text-muted-foreground hover:bg-card hover:text-foreground'
                   }`}
                 >
-                  <Clock className="w-3.5 h-3.5 mb-1 text-forest-700" />
+                  <Clock className="w-3.5 h-3.5 mb-1 text-primary" />
                   {slot}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between border-t border-stone-100">
+          <div className="pt-2 flex items-center justify-between border-t border-border">
             <Button variant="outline" size="md" onClick={() => setStep(1)}>
               Back
             </Button>
@@ -445,62 +445,62 @@ export const CheckoutModal: React.FC = () => {
       {step === 3 && (
         <div className="space-y-5 text-xs sm:text-sm">
           <div>
-            <h3 className="font-bold text-stone-900 text-sm">Choose Payment Method</h3>
-            <p className="text-xs text-stone-500">
+            <h3 className="font-bold text-foreground text-sm">Choose Payment Method</h3>
+            <p className="text-xs text-muted-foreground">
               Payments are authorized with provider idempotency keys before settlement.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
-              { id: 'upi', label: 'UPI / QR Intent', icon: <QrCode className="w-5 h-5 text-forest-700" />, desc: 'GPay, PhonePe, Paytm' },
-              { id: 'cod', label: 'Pay on Delivery', icon: <Building className="w-5 h-5 text-amber-700" />, desc: 'Cash / Kirana Khata' },
-              { id: 'card', label: 'Cards / NetBanking', icon: <CreditCard className="w-5 h-5 text-indigo-700" />, desc: 'All Indian Banks & RuPay' }
+              { id: 'upi', label: 'UPI / QR Intent', icon: <QrCode className="w-5 h-5 text-primary" />, desc: 'GPay, PhonePe, Paytm' },
+              { id: 'cod', label: 'Pay on Delivery', icon: <Building className="w-5 h-5 text-amber-600" />, desc: 'Cash / Kirana Khata' },
+              { id: 'card', label: 'Cards / NetBanking', icon: <CreditCard className="w-5 h-5 text-primary" />, desc: 'All Indian Banks & RuPay' }
             ].map(m => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setPaymentMethod(m.id as any)}
-                className={`p-3.5 rounded-2xl border text-left transition-all ${
+                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                   paymentMethod === m.id
-                    ? 'bg-white border-forest-800 ring-2 ring-forest-800/20 shadow-xs'
-                    : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-white'
+                    ? 'bg-card border-primary ring-2 ring-primary/20 shadow-card'
+                    : 'bg-card border-border text-muted-foreground hover:border-primary/40'
                 }`}
               >
                 <div className="mb-2">{m.icon}</div>
-                <div className="font-bold text-stone-900 text-xs">{m.label}</div>
-                <div className="text-[10px] text-stone-500 mt-0.5">{m.desc}</div>
+                <div className="font-bold text-foreground text-xs">{m.label}</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{m.desc}</div>
               </button>
             ))}
           </div>
 
           {/* Pricing Breakdown Summary */}
-          <div className="p-4 bg-stone-50/80 rounded-2xl border border-stone-200 space-y-2 text-xs">
-            <div className="flex justify-between text-stone-600">
+          <div className="p-4 bg-secondary/40 rounded-2xl border border-border space-y-2 text-xs">
+            <div className="flex justify-between text-muted-foreground">
               <span>Items Total (Across {merchantGroups.length} Shops)</span>
-              <span>₹{subtotal}</span>
+              <span className="text-foreground font-medium">₹{subtotal}</span>
             </div>
             {totalSavings > 0 && (
-              <div className="flex justify-between text-emerald-700 font-semibold">
+              <div className="flex justify-between text-primary font-semibold">
                 <span>Total Slabs & Wholesale Savings</span>
                 <span>-₹{totalSavings}</span>
               </div>
             )}
-            <div className="flex justify-between text-stone-600">
+            <div className="flex justify-between text-muted-foreground">
               <span>GST (Included where applicable)</span>
-              <span>₹{taxAmount}</span>
+              <span className="text-foreground">₹{taxAmount}</span>
             </div>
-            <div className="flex justify-between text-stone-600">
+            <div className="flex justify-between text-muted-foreground">
               <span>Delivery Fee</span>
-              <span>{deliveryFee === 0 ? <strong className="text-emerald-700">FREE</strong> : `₹${deliveryFee}`}</span>
+              <span>{deliveryFee === 0 ? <strong className="text-primary">FREE</strong> : `₹${deliveryFee}`}</span>
             </div>
-            <div className="flex justify-between text-sm font-bold text-stone-900 pt-2 border-t border-stone-200">
+            <div className="flex justify-between text-sm font-bold text-foreground pt-2 border-t border-border">
               <span>Total Payable</span>
-              <span className="text-forest-900 text-base">₹{finalPayable}</span>
+              <span className="text-primary text-base">₹{finalPayable}</span>
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between border-t border-stone-100">
+          <div className="pt-2 flex items-center justify-between border-t border-border">
             <Button variant="outline" size="md" onClick={() => setStep(2)}>
               Back
             </Button>
@@ -521,18 +521,18 @@ export const CheckoutModal: React.FC = () => {
       {/* Step 4: Parent Order Confirmation with Suborders Breakdown */}
       {step === 4 && createdParentOrder && (
         <div className="py-4 text-center space-y-5 text-xs sm:text-sm">
-          <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-14 h-14 rounded-full bg-brand-soft text-primary flex items-center justify-center mx-auto shadow-card border border-primary/20">
             <Check className="w-7 h-7" />
           </div>
 
           <div className="space-y-1">
-            <span className="text-[11px] font-bold text-forest-800 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
               Order Confirmed & Logged
             </span>
-            <h3 className="font-display text-2xl font-extrabold text-stone-900">
+            <h3 className="font-display text-2xl font-bold text-foreground">
               Parent Order #{createdParentOrder.id}
             </h3>
-            <p className="text-xs text-stone-600">
+            <p className="text-xs text-muted-foreground">
               Successfully created {createdParentOrder.subOrders.length} independent merchant suborders.
             </p>
           </div>
@@ -542,11 +542,11 @@ export const CheckoutModal: React.FC = () => {
             {createdParentOrder.subOrders.map(subOrder => (
               <div
                 key={subOrder.id}
-                className="p-3.5 rounded-2xl border border-stone-200 bg-stone-50/50 space-y-2"
+                className="p-3.5 rounded-2xl border border-border bg-card shadow-xs space-y-2"
               >
                 <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-stone-900">
-                    <Store className="w-3.5 h-3.5 text-forest-700" />
+                  <div className="flex items-center gap-1.5 font-bold text-foreground">
+                    <Store className="w-3.5 h-3.5 text-primary" />
                     <span>{subOrder.merchantName}</span>
                   </div>
                   <Badge variant="forest" size="sm">
@@ -554,30 +554,30 @@ export const CheckoutModal: React.FC = () => {
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-stone-500">
-                  <span>Suborder ID: <strong className="text-stone-700 font-mono">{subOrder.id}</strong></span>
-                  <span>Amount: <strong className="text-stone-900">₹{subOrder.subtotal}</strong></span>
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Suborder ID: <strong className="text-foreground font-mono">{subOrder.id}</strong></span>
+                  <span>Amount: <strong className="text-primary font-bold">₹{subOrder.subtotal}</strong></span>
                 </div>
 
-                <div className="text-[11px] text-stone-600">
+                <div className="text-[11px] text-muted-foreground">
                   {subOrder.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-left text-xs space-y-1">
-            <div className="flex justify-between text-stone-600">
+          <div className="p-3.5 rounded-xl bg-secondary/50 border border-border text-left text-xs space-y-1.5">
+            <div className="flex justify-between text-muted-foreground">
               <span>Payment Reference:</span>
-              <span className="font-mono font-semibold text-stone-800">{createdParentOrder.paymentReference}</span>
+              <span className="font-mono font-semibold text-foreground">{createdParentOrder.paymentReference}</span>
             </div>
-            <div className="flex justify-between text-stone-600">
+            <div className="flex justify-between text-muted-foreground">
               <span>Payment Status:</span>
-              <span className="font-semibold text-forest-800 uppercase text-[10px]">{createdParentOrder.paymentStatus}</span>
+              <span className="font-semibold text-primary uppercase text-[10px]">{createdParentOrder.paymentStatus}</span>
             </div>
-            <div className="flex justify-between text-stone-600">
+            <div className="flex justify-between text-muted-foreground">
               <span>Estimated Delivery:</span>
-              <span className="font-semibold text-stone-800">{createdParentOrder.estimatedDelivery}</span>
+              <span className="font-semibold text-foreground">{createdParentOrder.estimatedDelivery}</span>
             </div>
           </div>
 

@@ -300,29 +300,29 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
   return (
     <div className="space-y-6">
       {/* Subheader and Mode Selector */}
-      <div className="bg-white rounded-3xl border border-stone-200/90 p-5 sm:p-6 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-900">
+            <span className="p-1.5 rounded-lg bg-brand-soft text-primary">
               <ListPlus className="w-5 h-5" />
             </span>
-            <h3 className="font-display font-extrabold text-lg text-stone-900">
+            <h3 className="font-display font-bold text-lg text-foreground">
               Path C — Assisted Purchase-List Entry
             </h3>
             <Badge variant="forest">Review-First Workflow</Badge>
           </div>
-          <p className="text-xs text-stone-500 mt-1 max-w-2xl">
+          <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
             Designed for Kirana shopkeepers, catering chefs, and hostel supervisors. Paste unformatted notes, use our SKU spreadsheet grid, or upload an actual CSV file.
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-stone-100 rounded-xl text-xs font-semibold shrink-0">
+        <div className="flex items-center gap-1.5 p-1 bg-secondary/60 rounded-xl text-xs font-semibold shrink-0">
           <button
             onClick={() => setInputMode('text')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'text'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <ClipboardList className="w-3.5 h-3.5" />
@@ -333,8 +333,8 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
             onClick={() => setInputMode('grid')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'grid'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -345,8 +345,8 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
             onClick={() => setInputMode('csv')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'csv'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
@@ -359,18 +359,18 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
       {inputMode === 'text' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Text Box & Presets */}
-          <div className="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-stone-200 shadow-soft space-y-4">
+          <div className="lg:col-span-5 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-bold text-sm text-stone-900 flex items-center gap-2">
-                <ClipboardList className="w-4 h-4 text-emerald-600" />
+              <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-primary" />
                 Raw WhatsApp / Text List
               </h4>
-              <span className="text-[11px] text-stone-400">1 item per line</span>
+              <span className="text-[11px] text-muted-foreground">1 item per line</span>
             </div>
 
             {/* Quick Presets */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
                 Load Sample Indian Bulk Lists:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -382,7 +382,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                       setRawText(p.text);
                       setIsParsed(false);
                     }}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-forest-50 border border-stone-200 hover:border-forest-300 text-stone-700 hover:text-forest-900 transition-colors font-medium text-left"
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-secondary/50 hover:bg-brand-soft border border-border hover:border-primary/40 text-foreground hover:text-primary transition-colors font-medium text-left"
                   >
                     {p.name.split(' (')[0]}
                   </button>
@@ -398,12 +398,12 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                 setIsParsed(false);
               }}
               placeholder={`Paste your list here, e.g.:\n25kg Sona Masoori Rice - 4 bags\nMP Sharbati Atta - 15 bags\nDhampur Sugar 50kg - 2 sacks\nPure Desi Ghee - 6 jars`}
-              className="w-full p-3.5 bg-stone-50/70 border border-stone-200 rounded-2xl text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:bg-white resize-none shadow-inner"
+              className="w-full p-3.5 bg-muted/40 border border-input rounded-xl text-xs font-mono text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-card resize-none shadow-inner"
             />
 
-            <div className="p-2.5 rounded-xl bg-stone-100 text-[11px] text-stone-600 space-y-1">
-              <div className="font-semibold text-stone-800 flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5 text-stone-500" />
+            <div className="p-3 rounded-xl bg-secondary/50 text-[11px] text-muted-foreground space-y-1 border border-border">
+              <div className="font-semibold text-foreground flex items-center gap-1">
+                <HelpCircle className="w-3.5 h-3.5 text-primary" />
                 <span>Notice on Automated Extraction</span>
               </div>
               <p>
@@ -414,7 +414,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
             <Button
               variant="primary"
               size="md"
-              className="w-full font-bold shadow-soft"
+              className="w-full font-bold shadow-card"
               onClick={() => parseList(rawText)}
               icon={<ArrowRight className="w-4 h-4" />}
               iconPosition="right"
@@ -424,28 +424,28 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
           </div>
 
           {/* Right Parsed Results with Review Controls */}
-          <div className="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-stone-200 shadow-soft flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-7 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card flex flex-col justify-between space-y-4">
             <div>
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                  <h4 className="font-bold text-sm text-stone-900">
+                  <h4 className="font-bold text-sm text-foreground">
                     Review Matched Catalogue Items
                   </h4>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-muted-foreground">
                     Verify matched SKU, quantity and shop before confirmation
                   </p>
                 </div>
                 {isParsed && (
-                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  <span className="text-xs font-bold text-primary bg-brand-soft px-2.5 py-1 rounded-full border border-primary/20">
                     {parsedItems.length} lines parsed
                   </span>
                 )}
               </div>
 
               {!isParsed ? (
-                <div className="py-16 text-center space-y-3 text-stone-400">
-                  <ClipboardList className="w-12 h-12 mx-auto stroke-1 text-stone-300" />
-                  <p className="text-xs max-w-xs mx-auto text-stone-500">
+                <div className="py-16 text-center space-y-3 text-muted-foreground">
+                  <ClipboardList className="w-12 h-12 mx-auto stroke-1 text-muted-foreground/60" />
+                  <p className="text-xs max-w-xs mx-auto text-muted-foreground">
                     Click <strong>"Parse & Match Against Catalogue"</strong> to convert raw notes into verified grocery SKUs with live discount tiers.
                   </p>
                 </div>
@@ -454,10 +454,10 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                   {parsedItems.map(item => (
                     <div
                       key={item.id}
-                      className={`p-3.5 rounded-2xl border transition-all text-xs space-y-2.5 ${
+                      className={`p-3.5 rounded-xl border transition-all text-xs space-y-2.5 ${
                         item.isUncertain
-                          ? 'border-amber-300 bg-amber-50/40'
-                          : 'border-stone-200 bg-stone-50/60'
+                          ? 'border-amber-500/30 bg-amber-500/10'
+                          : 'border-border bg-card'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -466,16 +466,16 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                             <img
                               src={item.matchedProduct.image}
                               alt={item.matchedProduct.name}
-                              className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                              className="w-12 h-12 rounded-xl object-cover border border-border shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-xl bg-stone-200 flex items-center justify-center shrink-0 text-stone-500">
+                            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
                               <AlertCircle className="w-5 h-5" />
                             </div>
                           )}
 
                           <div className="min-w-0 flex-1">
-                            <div className="text-[11px] text-stone-500 font-mono">
+                            <div className="text-[11px] text-muted-foreground font-mono">
                               Raw: "{item.rawLine}"
                             </div>
 
@@ -484,7 +484,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                               <select
                                 value={item.matchedProduct?.id || ''}
                                 onChange={e => handleUpdateParsedItem(item.id, 'productId', e.target.value)}
-                                className="w-full px-2.5 py-1 bg-white border border-stone-300 rounded-lg text-xs font-semibold text-stone-900"
+                                className="w-full px-2.5 py-1 bg-card border border-input rounded-lg text-xs font-semibold text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
                               >
                                 {PRODUCTS.map(p => (
                                   <option key={p.id} value={p.id}>
@@ -499,7 +499,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                         <button
                           type="button"
                           onClick={() => handleRemoveParsedItem(item.id)}
-                          className="text-stone-400 hover:text-rose-600 p-1"
+                          className="text-muted-foreground hover:text-destructive p-1 transition-colors"
                           title="Remove item"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -507,27 +507,27 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                       </div>
 
                       {/* Row Controls: Quantity & Confidence Badge */}
-                      <div className="flex items-center justify-between border-t border-stone-200/70 pt-2 text-xs">
+                      <div className="flex items-center justify-between border-t border-border pt-2 text-xs">
                         <div className="flex items-center gap-2">
-                          <label className="font-semibold text-stone-600">Qty:</label>
+                          <label className="font-semibold text-muted-foreground">Qty:</label>
                           <input
                             type="number"
                             min="1"
                             value={item.quantity}
                             onChange={e => handleUpdateParsedItem(item.id, 'quantity', e.target.value)}
-                            className="w-16 px-2 py-0.5 border border-stone-300 rounded-lg text-center font-bold font-mono"
+                            className="w-16 px-2 py-0.5 bg-card border border-input rounded-lg text-center font-bold font-mono text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
                           />
-                          <span className="text-stone-500">{item.unit}</span>
+                          <span className="text-muted-foreground">{item.unit}</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                           {item.isUncertain ? (
-                            <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                               <AlertCircle className="w-3 h-3" />
                               Uncertain match ({item.confidence}% confidence)
                             </span>
                           ) : (
-                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="text-[10px] font-bold text-primary bg-brand-soft border border-primary/25 px-2 py-0.5 rounded-full flex items-center gap-1">
                               <CheckCircle2 className="w-3 h-3" />
                               Confident match ({item.confidence}%)
                             </span>
@@ -541,8 +541,8 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
             </div>
 
             {isParsed && (
-              <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                <span className="text-xs text-stone-500">
+              <div className="pt-3 border-t border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
                   {parsedItems.length} lines ready for basket
                 </span>
                 <Button
@@ -561,13 +561,13 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
 
       {/* Mode 2: Rapid Multi-Row Spreadsheet SKU Grid */}
       {inputMode === 'grid' && (
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-soft p-6 sm:p-8 space-y-5">
+        <div className="bg-card rounded-2xl border border-border shadow-card p-6 sm:p-8 space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-bold text-sm text-stone-900">
+              <h4 className="font-bold text-sm text-foreground">
                 Spreadsheet-Style Rapid SKU Matrix
               </h4>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-muted-foreground">
                 Select items from dropdown, set pack quantities, and batch-add all lines in one click
               </p>
             </div>
@@ -579,7 +579,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                   { productId: PRODUCTS[0].id, quantity: 5 }
                 ])
               }
-              className="px-3 py-1.5 rounded-lg bg-forest-50 text-forest-900 hover:bg-forest-100 font-semibold text-xs flex items-center gap-1.5 border border-forest-200"
+              className="px-3 py-1.5 rounded-xl bg-brand-soft text-primary hover:bg-brand-soft/80 font-semibold text-xs flex items-center gap-1.5 border border-primary/20 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add SKU Row</span>
@@ -588,7 +588,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase font-semibold text-[11px]">
+              <thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Commodity / SKU</th>
                   <th className="py-3 px-4">Pack Unit</th>
@@ -598,7 +598,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                   <th className="py-3 px-4 text-right">Remove</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-border">
                 {gridRows.map((row, idx) => {
                   const product = PRODUCTS.find(p => p.id === row.productId) || PRODUCTS[0];
                   const activeTier = product.bulkTiers
@@ -608,7 +608,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                   const lineTotal = unitPrice * row.quantity;
 
                   return (
-                    <tr key={idx} className="hover:bg-stone-50/50">
+                    <tr key={idx} className="hover:bg-muted/30 transition-colors">
                       <td className="py-2.5 px-4">
                         <select
                           value={row.productId}
@@ -620,7 +620,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                               return updated;
                             });
                           }}
-                          className="w-full max-w-sm px-2.5 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-semibold text-stone-900 cursor-pointer"
+                          className="w-full max-w-sm px-2.5 py-1.5 bg-card border border-input rounded-lg text-xs font-semibold text-foreground cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-primary"
                         >
                           {PRODUCTS.map(p => (
                             <option key={p.id} value={p.id}>
@@ -630,7 +630,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                         </select>
                       </td>
 
-                      <td className="py-2.5 px-4 font-semibold text-stone-700">
+                      <td className="py-2.5 px-4 font-semibold text-foreground">
                         {product.unit}
                       </td>
 
@@ -647,22 +647,22 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                               return updated;
                             });
                           }}
-                          className="w-20 px-2 py-1 bg-stone-50 border border-stone-200 rounded-lg font-mono font-bold text-center text-stone-900"
+                          className="w-20 px-2 py-1 bg-card border border-input rounded-lg font-mono font-bold text-center text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
                         />
                       </td>
 
                       <td className="py-2.5 px-4">
-                        <div className="font-mono font-bold text-forest-900">
+                        <div className="font-mono font-bold text-primary">
                           ₹{unitPrice}
                         </div>
                         {activeTier && (
-                          <span className="text-[10px] text-emerald-700 font-bold">
+                          <span className="text-[10px] text-primary font-bold">
                             Save {activeTier.discountPercent}%
                           </span>
                         )}
                       </td>
 
-                      <td className="py-2.5 px-4 font-mono font-bold text-stone-900 text-sm">
+                      <td className="py-2.5 px-4 font-mono font-bold text-foreground text-sm">
                         ₹{lineTotal}
                       </td>
 
@@ -670,7 +670,7 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
                         <button
                           onClick={() => setGridRows(prev => prev.filter((_, i) => i !== idx))}
                           disabled={gridRows.length <= 1}
-                          className="p-1 text-stone-400 hover:text-rose-600 disabled:opacity-30"
+                          className="p-1 text-muted-foreground hover:text-destructive disabled:opacity-30 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -682,8 +682,8 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
             </table>
           </div>
 
-          <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
-            <span className="text-xs text-stone-500">
+          <div className="pt-3 border-t border-border flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">
               {gridRows.length} rows configured
             </span>
             <Button
@@ -701,16 +701,16 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
 
       {/* Mode 3: Real CSV File Reader */}
       {inputMode === 'csv' && (
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-soft p-6 sm:p-10 text-center space-y-6 max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-900 flex items-center justify-center mx-auto">
+        <div className="bg-card rounded-2xl border border-border shadow-card p-6 sm:p-10 text-center space-y-6 max-w-2xl mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-brand-soft text-primary flex items-center justify-center mx-auto border border-primary/20">
             <FileSpreadsheet className="w-8 h-8" />
           </div>
 
           <div className="space-y-1">
-            <h4 className="font-bold text-base text-stone-900">
+            <h4 className="font-bold text-base text-foreground">
               Real CSV Order File Processing
             </h4>
-            <p className="text-xs text-stone-500 max-w-md mx-auto">
+            <p className="text-xs text-muted-foreground max-w-md mx-auto">
               Upload your structured .csv file (with Commodity, Quantity, Unit). The file is parsed in your browser and matched against verified catalogue items.
             </p>
           </div>
@@ -727,23 +727,23 @@ Tata Sampann Toor Dal,20,1kg packs,155`;
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={handleDownloadCsvTemplate}
-              className="px-4 py-2 rounded-xl border border-stone-300 hover:border-stone-400 bg-stone-50 hover:bg-white text-xs font-semibold text-stone-800 flex items-center gap-2 transition-colors"
+              className="px-4 py-2 rounded-xl border border-border hover:border-primary/40 bg-card hover:bg-muted/40 text-xs font-semibold text-foreground flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <Download className="w-4 h-4 text-forest-700" />
+              <Download className="w-4 h-4 text-primary" />
               <span>Download Official CSV Template</span>
             </button>
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 rounded-xl bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold flex items-center gap-2 shadow-card transition-colors cursor-pointer"
             >
-              <Upload className="w-4 h-4 text-emerald-300" />
+              <Upload className="w-4 h-4 text-primary-foreground/90" />
               <span>{csvFileName ? `Replace ${csvFileName}` : 'Choose CSV File to Upload'}</span>
             </button>
           </div>
 
           {csvFileName && (
-            <div className="text-xs text-emerald-800 font-semibold flex items-center justify-center gap-1.5">
+            <div className="text-xs text-primary font-semibold flex items-center justify-center gap-1.5 bg-brand-soft border border-primary/20 py-1.5 px-3 rounded-xl max-w-fit mx-auto">
               <CheckCircle2 className="w-4 h-4" />
               <span>Loaded: {csvFileName}</span>
             </div>

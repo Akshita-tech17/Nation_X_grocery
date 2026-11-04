@@ -4,7 +4,15 @@ import { useCart } from '../../context/CartContext';
 import { ProductService } from '../../services/productService';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { Boxes, FileText, TrendingDown, ArrowRight, AlertTriangle, Truck, ShieldCheck } from 'lucide-react';
+import {
+  Layers,
+  ArrowRight,
+  TrendingDown,
+  ShieldCheck,
+  Truck,
+  FileText,
+  AlertTriangle
+} from 'lucide-react';
 
 interface BulkTierCalculatorProps {
   product: Product;
@@ -12,11 +20,9 @@ interface BulkTierCalculatorProps {
 
 export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product }) => {
   const { addToCart } = useCart();
-  const tiers = product.bulkTiers || [];
-  const minQty = product.minWholesaleQty || (tiers[0]?.minQty ?? 5);
-
-  const [quantity, setQuantity] = useState(minQty);
-  const [includeGstInvoice, setIncludeGstInvoice] = useState(true);
+  const minQty = product.minWholesaleQty || 5;
+  const [quantity, setQuantity] = useState<number>(minQty);
+  const [includeGstInvoice, setIncludeGstInvoice] = useState<boolean>(true);
 
   // Authoritative calculation via ProductService
   const offering = ProductService.getOfferingById(product.offeringId || '') || {
@@ -43,8 +49,14 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
   // Estimated 5% GST credit
   const gstCreditEstimated = Math.round(pricing.totalPrice * 0.05);
 
+  const tiers = product.bulkTiers || [
+    { minQty: 5, pricePerUnit: Math.round(product.retailPrice * 0.92), label: 'Tier 1 • Catering Minimum (5+ packs)', discountPercent: 8 },
+    { minQty: 15, pricePerUnit: Math.round(product.retailPrice * 0.85), label: 'Tier 2 • Semi-Wholesale (15+ packs)', discountPercent: 15 },
+    { minQty: 40, pricePerUnit: Math.round(product.retailPrice * 0.76), label: 'Tier 3 • Full Mandi Lot (40+ packs)', discountPercent: 24 }
+  ];
+
   const isMoqViolated = quantity < minQty;
-  const isOutOfStock = !stockCheck.isValid && stockCheck.currentStatus === 'unavailable';
+  const isOutOfStock = !stockCheck.isValid || stockCheck.availableStock <= 0;
   const isInsufficientStock = quantity > offering.stockQuantity;
 
   const handleAddBulk = () => {
@@ -53,19 +65,19 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200/90 shadow-soft p-5 sm:p-7 space-y-6">
+    <div className="bg-card rounded-2xl border border-border shadow-card p-5 sm:p-7 space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-900">
-              <Boxes className="w-4 h-4" />
+            <span className="p-1.5 rounded-lg bg-brand-soft text-primary border border-primary/20">
+              <Layers className="w-4 h-4" />
             </span>
-            <h3 className="font-bold text-stone-900 text-base">
+            <h3 className="font-heading font-bold text-foreground text-base">
               Wholesale Slabs & Volume Calculator
             </h3>
           </div>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Dynamic volume discounting for mess owners, caterers, kiranas and restaurants fulfilled by <strong>{product.merchantName}</strong>
           </p>
         </div>
@@ -73,8 +85,8 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
           <Badge variant="blue" size="md">
             MOQ: {minQty} {product.unit}s
           </Badge>
-          <span className="text-xs font-semibold text-stone-600">
-            Available: <strong>{offering.stockQuantity} units</strong>
+          <span className="text-xs font-semibold text-muted-foreground">
+            Available: <strong className="text-foreground">{offering.stockQuantity} units</strong>
           </span>
         </div>
       </div>
@@ -88,22 +100,22 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
               type="button"
               key={t.minQty}
               onClick={() => setQuantity(t.minQty)}
-              className={`p-3.5 rounded-2xl border text-left cursor-pointer transition-all ${
+              className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all ${
                 isSelected
-                  ? 'border-indigo-600 bg-indigo-50/80 shadow-xs ring-2 ring-indigo-600/30'
-                  : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
+                  ? 'border-primary bg-brand-soft/80 shadow-card ring-2 ring-primary/30'
+                  : 'border-border hover:border-input bg-card'
               }`}
             >
-              <div className="flex items-center justify-between text-xs text-stone-500 mb-1">
-                <span className="font-semibold text-stone-700">Tier {idx + 1} (Min {t.minQty}+)</span>
-                <span className="font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 text-[10px]">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                <span className="font-semibold text-foreground">Tier {idx + 1} (Min {t.minQty}+)</span>
+                <span className="font-semibold text-primary bg-brand-soft px-1.5 py-0.5 rounded border border-primary/20 text-[10px]">
                   Save {t.discountPercent}%
                 </span>
               </div>
-              <div className="text-base font-bold text-stone-900 font-mono">
-                ₹{t.pricePerUnit} <span className="text-xs font-normal text-stone-500">/unit</span>
+              <div className="text-base font-bold text-foreground font-mono">
+                ₹{t.pricePerUnit} <span className="text-xs font-normal text-muted-foreground">/unit</span>
               </div>
-              <div className="text-[11px] text-stone-600 mt-1 font-medium truncate">
+              <div className="text-[11px] text-muted-foreground mt-1 font-medium truncate">
                 {t.label}
               </div>
             </button>
@@ -112,11 +124,11 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
       </div>
 
       {/* Interactive Slider & Stepper */}
-      <div className="bg-stone-50/80 p-4 rounded-2xl border border-stone-200/80 space-y-3">
-        <div className="flex items-center justify-between text-xs font-semibold text-stone-800">
+      <div className="bg-muted/40 p-4 rounded-xl border border-border space-y-3">
+        <div className="flex items-center justify-between text-xs font-semibold text-foreground">
           <span>Order Quantity (Enforces MOQ):</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold font-mono text-indigo-950 px-2.5 py-0.5 bg-white border border-stone-300 rounded-lg">
+            <span className="text-sm font-bold font-mono text-primary px-2.5 py-0.5 bg-card border border-border rounded-lg">
               {quantity} {product.unit}s
             </span>
           </div>
@@ -129,10 +141,10 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
           step={1}
           value={quantity}
           onChange={e => setQuantity(Math.max(minQty, Number(e.target.value)))}
-          className="w-full accent-indigo-600 cursor-pointer"
+          className="w-full accent-primary cursor-pointer"
         />
 
-        <div className="flex justify-between text-[11px] text-stone-500 font-mono">
+        <div className="flex justify-between text-[11px] text-muted-foreground font-mono">
           <span>Min MOQ: {minQty} units</span>
           <span>Max Yard Stock: {offering.stockQuantity} units</span>
         </div>
@@ -140,76 +152,76 @@ export const BulkTierCalculator: React.FC<BulkTierCalculatorProps> = ({ product 
 
       {/* Stock & MOQ Validation Warnings */}
       {isInsufficientStock && (
-        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
           <span>Requested {quantity} units exceeds available merchant stock of {offering.stockQuantity} units.</span>
         </div>
       )}
 
       {/* Financial Breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-2xl bg-stone-950 text-white">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-card border border-border shadow-card">
         <div>
-          <div className="text-xs text-stone-300 font-medium">Total Bulk Amount</div>
-          <div className="text-xl font-bold font-mono text-white mt-0.5">
+          <div className="text-xs text-muted-foreground font-medium">Total Bulk Amount</div>
+          <div className="text-xl font-bold font-mono text-foreground mt-0.5">
             ₹{pricing.totalPrice}
           </div>
-          <div className="text-[11px] text-stone-300">@ ₹{pricing.unitPrice} / {product.unit}</div>
+          <div className="text-[11px] text-muted-foreground">@ ₹{pricing.unitPrice} / {product.unit}</div>
         </div>
 
         <div>
-          <div className="text-xs text-emerald-300 font-medium flex items-center gap-1">
+          <div className="text-xs text-primary font-medium flex items-center gap-1">
             <TrendingDown className="w-3.5 h-3.5" />
             Direct Volume Savings
           </div>
-          <div className="text-xl font-bold font-mono text-emerald-400 mt-0.5">
+          <div className="text-xl font-bold font-mono text-primary mt-0.5">
             ₹{pricing.savings}
           </div>
-          <div className="text-[11px] text-emerald-300/80">({pricing.discountPercent}% off MRP)</div>
+          <div className="text-[11px] text-primary/80">({pricing.discountPercent}% off MRP)</div>
         </div>
 
         <div>
-          <div className="text-xs text-amber-300 font-medium flex items-center gap-1">
+          <div className="text-xs text-marigold font-medium flex items-center gap-1">
             <FileText className="w-3.5 h-3.5" />
             Input Tax Credit (GST)
           </div>
-          <div className="text-xl font-bold font-mono text-amber-300 mt-0.5">
+          <div className="text-xl font-bold font-mono text-marigold mt-0.5">
             ₹{gstCreditEstimated}
           </div>
-          <div className="text-[11px] text-amber-200/80">Tax Invoice Included</div>
+          <div className="text-[11px] text-muted-foreground">Tax Invoice Included</div>
         </div>
       </div>
 
       {/* Fulfilment Terms */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-stone-600">
-        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 border border-stone-200">
-          <Truck className="w-4 h-4 text-forest-700" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/40 border border-border">
+          <Truck className="w-4 h-4 text-primary" />
           <span>Palletized freight or mini-truck direct from {offering.merchantName}</span>
         </div>
-        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-stone-50 border border-stone-200">
-          <ShieldCheck className="w-4 h-4 text-forest-700" />
+        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/40 border border-border">
+          <ShieldCheck className="w-4 h-4 text-primary" />
           <span>FSSAI Certified Commercial Mill Batches with Moisture Testing</span>
         </div>
       </div>
 
       {/* GST Invoicing Toggle */}
-      <label className="flex items-center gap-2.5 text-xs text-stone-700 cursor-pointer select-none">
+      <label className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer select-none">
         <input
           type="checkbox"
           checked={includeGstInvoice}
           onChange={e => setIncludeGstInvoice(e.target.checked)}
-          className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+          className="rounded border-border text-primary focus:ring-ring w-4 h-4"
         />
         <span>
-          Generate <strong className="font-semibold text-stone-900">B2B Commercial Tax Invoice</strong> with GSTIN credit claim
+          Generate <strong className="font-semibold text-foreground">B2B Commercial Tax Invoice</strong> with GSTIN credit claim
         </span>
       </label>
 
       {/* Action Button */}
       <Button
-        variant="amber"
+        variant="primary"
         size="lg"
         disabled={isMoqViolated || isOutOfStock || isInsufficientStock}
-        className="w-full font-bold shadow-soft"
+        className="w-full font-bold shadow-card"
         onClick={handleAddBulk}
         icon={<ArrowRight className="w-4 h-4" />}
         iconPosition="right"

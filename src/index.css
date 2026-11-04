@@ -3,9 +3,67 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: #fdfaf4;
+    --foreground: #0b1e1d;
+    --card: #ffffff;
+    --card-foreground: #0b1e1d;
+    --popover: #ffffff;
+    --popover-foreground: #0b1e1d;
+    --primary: #007a75;
+    --primary-foreground: #fdfaf3;
+    --secondary: #f3edda;
+    --secondary-foreground: #033633;
+    --muted: #f6f2ea;
+    --muted-foreground: #4e5f5d;
+    --accent: #f6e7bb;
+    --accent-foreground: #3d2a02;
+    --destructive: #cc2827;
+    --border: #e3ddd3;
+    --input: #d6d0c4;
+    --ring: #00847e;
+    --radius: 0.75rem;
+    --marigold: #f7b828;
+    --marigold-foreground: #2f1e02;
+    --terracotta: #c06240;
+    --brand-soft: #e4f7f4;
+    --success: #036639;
+    --success-soft: #d5f5de;
+    --warning-soft: #feeec1;
+  }
+
+  .dark {
+    --background: #0b1514;
+    --foreground: #f3faf9;
+    --card: #112220;
+    --card-foreground: #f3faf9;
+    --popover: #112220;
+    --popover-foreground: #f3faf9;
+    --primary: #34b8ab;
+    --primary-foreground: #0b1514;
+    --secondary: #172d2b;
+    --secondary-foreground: #f3faf9;
+    --muted: #172d2b;
+    --muted-foreground: #8aa3a0;
+    --accent: #4a3814;
+    --accent-foreground: #faeed2;
+    --destructive: #e04847;
+    --border: rgba(255, 255, 255, 0.12);
+    --input: rgba(255, 255, 255, 0.16);
+    --ring: #34b8ab;
+    --marigold: #f7b828;
+    --marigold-foreground: #2f1e02;
+    --terracotta: #d67a5a;
+    --brand-soft: #143533;
+    --success: #3ec77f;
+    --success-soft: #123824;
+    --warning-soft: #3d3110;
+  }
+
   body {
-    background-color: #fdfbf7;
-    color: #1f1b16;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
@@ -15,24 +73,38 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8f5ee;
+  background: var(--muted);
 }
 ::-webkit-scrollbar-thumb {
-  background: #c5b59e;
+  background: var(--input);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9d8a70;
+  background: var(--muted-foreground);
 }
 
-/* Glass effect utilities */
+/* NationX Header & Card Surface Utilities */
+.nationx-header {
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
+.nationx-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(11, 30, 29, 0.04);
+}
+
+/* Maintain backwards compatibility for legacy classnames */
 .glass-header {
-  background: rgba(253, 251, 247, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(253, 250, 244, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(11, 30, 29, 0.04);
 }

@@ -16,26 +16,26 @@ export const Badge: React.FC<BadgeProps> = ({
   icon
 }) => {
   const variantStyles = {
-    forest: 'bg-emerald-50 text-forest-800 border-emerald-200/80',
-    saffron: 'bg-amber-50 text-amber-900 border-amber-200/80',
-    amber: 'bg-amber-50 text-amber-900 border-amber-200/80',
-    blue: 'bg-sky-50 text-sky-900 border-sky-200/80',
-    purple: 'bg-purple-50 text-purple-900 border-purple-200/80',
-    red: 'bg-rose-50 text-rose-800 border-rose-200/80',
-    rose: 'bg-rose-50 text-rose-800 border-rose-200/80',
-    gray: 'bg-stone-100 text-stone-700 border-stone-200/80',
-    stone: 'bg-stone-100 text-stone-700 border-stone-200/80',
-    outline: 'bg-transparent text-stone-700 border-stone-300'
+    forest: 'bg-brand-soft text-primary border-primary/20',
+    saffron: 'bg-amber-500/10 text-amber-900 border-amber-500/25',
+    amber: 'bg-amber-500/10 text-amber-900 border-amber-500/25',
+    blue: 'bg-blue-500/10 text-blue-900 border-blue-500/20',
+    purple: 'bg-purple-500/10 text-purple-900 border-purple-500/20',
+    red: 'bg-rose-500/10 text-rose-900 border-rose-500/20',
+    rose: 'bg-rose-500/10 text-rose-900 border-rose-500/20',
+    gray: 'bg-muted text-muted-foreground border-border',
+    stone: 'bg-muted text-muted-foreground border-border',
+    outline: 'bg-card text-foreground border-border'
   };
 
   const sizeStyles = {
-    sm: 'text-[11px] px-2 py-0.5 font-medium tracking-tight',
-    md: 'text-xs px-2.5 py-1 font-semibold'
+    sm: 'text-[11px] px-2 py-0.5 font-medium tracking-tight rounded-md',
+    md: 'text-xs px-2.5 py-1 font-medium rounded-lg'
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center gap-1 border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       <span>{children}</span>

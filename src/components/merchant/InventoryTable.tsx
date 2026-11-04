@@ -57,31 +57,31 @@ export const InventoryTable: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Search and Filter */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-card rounded-2xl border border-border p-4 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 className="font-bold text-stone-900 text-base">Inventory & Wholesale Slabs Manager</h3>
-          <p className="text-xs text-stone-500">
+          <h3 className="font-heading font-bold text-foreground text-base">Inventory & Wholesale Slabs Manager</h3>
+          <p className="text-xs text-muted-foreground">
             Real-time stock quantities, explicit availability status, freshness metadata, and multi-tier wholesale discounts
           </p>
         </div>
 
         <div className="relative max-w-xs w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-600" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search catalog items..."
-            className="w-full pl-9 pr-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600 focus:bg-white"
+            className="w-full pl-9 pr-3 py-1.5 bg-card border border-border rounded-xl text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-2xl border border-border shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-600 uppercase font-semibold text-[11px] tracking-wider">
+            <thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px] tracking-wider">
               <tr>
                 <th className="py-3.5 px-4">Product & Origin</th>
                 <th className="py-3.5 px-4">Pack Unit</th>
@@ -92,29 +92,29 @@ export const InventoryTable: React.FC = () => {
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-border">
               {filteredProducts.map(product => {
                 const isEditingThis = editingPriceId === product.id;
                 return (
-                  <tr key={product.id} className="hover:bg-stone-50/50 transition-colors">
+                  <tr key={product.id} className="hover:bg-muted/30 transition-colors">
                     {/* Product & Origin */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="w-10 h-10 object-cover rounded-lg border border-stone-200 shrink-0"
+                          className="w-10 h-10 object-cover rounded-lg border border-border shrink-0"
                         />
                         <div className="min-w-0">
-                          <div className="font-bold text-stone-900 truncate max-w-xs">
+                          <div className="font-semibold text-foreground truncate max-w-xs">
                             {product.name}
                           </div>
-                          <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
                             <span>{product.brand}</span>
                             <span>•</span>
-                            <span className="text-forest-700">{product.origin}</span>
+                            <span className="text-primary">{product.origin}</span>
                             {product.stockUpdatedAt && (
-                              <span className="text-stone-400 flex items-center gap-1">
+                              <span className="text-muted-foreground/80 flex items-center gap-1">
                                 <Clock className="w-2.5 h-2.5" />
                                 Updated {new Date(product.stockUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
@@ -125,7 +125,7 @@ export const InventoryTable: React.FC = () => {
                     </td>
 
                     {/* Pack Unit */}
-                    <td className="py-3 px-4 font-semibold text-stone-700">
+                    <td className="py-3 px-4 font-semibold text-foreground">
                       {product.packSize || product.unit}
                     </td>
 
@@ -137,7 +137,7 @@ export const InventoryTable: React.FC = () => {
                           min="0"
                           value={product.stockQuantity}
                           onChange={e => updateProductStock(product.id, Math.max(0, Number(e.target.value)))}
-                          className="w-16 px-2 py-1 text-center font-mono font-bold bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-forest-600 focus:bg-white"
+                          className="w-16 px-2 py-1 text-center font-mono font-bold bg-card border border-border rounded-lg text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                         />
                         {product.stockQuantity <= 5 && product.stockQuantity > 0 && (
                           <span title="Low stock alert" className="text-amber-600">
@@ -155,23 +155,23 @@ export const InventoryTable: React.FC = () => {
                             type="number"
                             value={tempPrice}
                             onChange={e => setTempPrice(Number(e.target.value))}
-                            className="w-20 px-2 py-1 font-mono font-bold bg-white border border-forest-600 rounded-lg text-stone-900 focus:outline-none text-xs"
+                            className="w-20 px-2 py-1 font-mono font-bold bg-card border border-primary rounded-lg text-foreground focus:outline-none text-xs"
                           />
                           <button
                             onClick={() => handleSavePrice(product.id)}
-                            className="p-1 rounded bg-forest-900 text-white hover:bg-forest-950"
+                            className="p-1 rounded bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-stone-900">
+                          <span className="font-mono font-bold text-foreground">
                             ₹{product.retailPrice}
                           </span>
                           <button
                             onClick={() => handleStartEditPrice(product)}
-                            className="text-stone-400 hover:text-forest-700 p-0.5"
+                            className="text-muted-foreground hover:text-primary p-0.5 cursor-pointer"
                             title="Edit price"
                           >
                             <Edit2 className="w-3 h-3" />
@@ -184,7 +184,7 @@ export const InventoryTable: React.FC = () => {
                     <td className="py-3 px-4">
                       <button
                         onClick={() => handleOpenTiersModal(product)}
-                        className="text-xs font-semibold text-forest-700 hover:text-forest-900 hover:underline flex items-center gap-1"
+                        className="text-xs font-semibold text-primary hover:text-primary/80 hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <Layers className="w-3.5 h-3.5" />
                         <span>
@@ -212,20 +212,20 @@ export const InventoryTable: React.FC = () => {
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => toggleStockStatus(product.id)}
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-colors ${
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
                           product.inStock
-                            ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
-                            : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
+                            ? 'bg-brand-soft text-primary hover:bg-brand-soft/80 border border-primary/20'
+                            : 'bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20'
                         }`}
                       >
                         {product.inStock ? (
                           <>
-                            <ToggleRight className="w-4 h-4 text-emerald-600" />
+                            <ToggleRight className="w-4 h-4 text-primary" />
                             <span>In Stock</span>
                           </>
                         ) : (
                           <>
-                            <ToggleLeft className="w-4 h-4 text-rose-600" />
+                            <ToggleLeft className="w-4 h-4 text-destructive" />
                             <span>Out of Stock</span>
                           </>
                         )}
@@ -248,15 +248,15 @@ export const InventoryTable: React.FC = () => {
         maxWidth="md"
       >
         <div className="space-y-4 text-xs">
-          <p className="text-stone-600">
+          <p className="text-muted-foreground">
             Discounts automatically apply in B2B Direct Bulk Ordering (Path 7.1) when buyers select quantities exceeding tier thresholds.
           </p>
 
           <div className="space-y-3">
             {tiers.map((tier, index) => (
-              <div key={index} className="p-3 rounded-xl bg-stone-50 border border-stone-200 grid grid-cols-3 gap-3 items-center">
+              <div key={index} className="p-3 rounded-xl bg-muted/40 border border-border grid grid-cols-3 gap-3 items-center">
                 <div>
-                  <label className="font-semibold text-stone-600 block mb-1">Min Qty ({tierModalProduct?.unit}s)</label>
+                  <label className="font-semibold text-muted-foreground block mb-1">Min Qty ({tierModalProduct?.unit}s)</label>
                   <input
                     type="number"
                     min="1"
@@ -266,12 +266,12 @@ export const InventoryTable: React.FC = () => {
                       updated[index].minQty = Number(e.target.value);
                       setTiers(updated);
                     }}
-                    className="w-full px-2.5 py-1.5 border border-stone-300 rounded-lg font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 border border-border bg-card rounded-lg font-mono font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-stone-600 block mb-1">Price / Unit (₹)</label>
+                  <label className="font-semibold text-muted-foreground block mb-1">Price / Unit (₹)</label>
                   <input
                     type="number"
                     min="1"
@@ -283,13 +283,13 @@ export const InventoryTable: React.FC = () => {
                       updated[index].discountPercent = Math.round(((mrp - updated[index].pricePerUnit) / mrp) * 100);
                       setTiers(updated);
                     }}
-                    className="w-full px-2.5 py-1.5 border border-stone-300 rounded-lg font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 border border-border bg-card rounded-lg font-mono font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-stone-600 block mb-1">Discount %</label>
-                  <div className="font-mono font-bold text-emerald-700 py-1.5">
+                  <label className="font-semibold text-muted-foreground block mb-1">Discount %</label>
+                  <div className="font-mono font-bold text-primary py-1.5">
                     {tier.discountPercent}% off
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export const InventoryTable: React.FC = () => {
             ))}
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-stone-100">
+          <div className="flex justify-end gap-2 pt-3 border-t border-border">
             <Button variant="ghost" size="sm" onClick={() => setTierModalProduct(null)}>
               Cancel
             </Button>

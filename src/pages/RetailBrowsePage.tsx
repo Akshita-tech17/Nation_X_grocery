@@ -189,30 +189,30 @@ export const RetailBrowsePage: React.FC = () => {
   return (
     <div className="space-y-6 pb-16">
       {/* Page Header & Location Context Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-warm-200/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-forest-950 tracking-tight">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
             Browse Grocery Catalog
           </h1>
-          <p className="text-xs sm:text-sm text-warm-700 mt-0.5">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Verified FMCG staples, unpolished pulses, pure cow ghee & commercial bulk packs
           </p>
         </div>
 
         {/* Current Location Badge */}
-        <div className="flex items-center gap-2 bg-warm-100/90 border border-warm-300/80 px-3 py-1.5 rounded-xl text-xs text-warm-800 self-start md:self-auto">
-          <MapPin className="w-4 h-4 text-forest-700 shrink-0" />
+        <div className="flex items-center gap-2 bg-secondary/60 border border-border px-3 py-1.5 rounded-xl text-xs text-foreground self-start md:self-auto">
+          <MapPin className="w-4 h-4 text-primary shrink-0" />
           <div>
-            <span className="text-[10px] uppercase font-bold text-warm-600 block leading-tight">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground block leading-tight">
               Delivery Destination (Demo)
             </span>
-            <span className="font-bold text-warm-950">
+            <span className="font-bold text-foreground">
               {currentLocation.area}, {currentLocation.city} ({currentLocation.pincode})
             </span>
           </div>
           <button
             onClick={() => setIsLocationModalOpen(true)}
-            className="ml-2 text-forest-800 hover:text-forest-950 font-bold hover:underline text-xs"
+            className="ml-2 text-primary hover:text-primary/80 font-bold hover:underline text-xs cursor-pointer"
           >
             Change
           </button>
@@ -224,27 +224,27 @@ export const RetailBrowsePage: React.FC = () => {
         <div
           className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
             locationCompatibility.status === 'instant'
-              ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950'
+              ? 'bg-brand-soft border-primary/25 text-primary'
               : locationCompatibility.status === 'inter-area'
-              ? 'bg-blue-50/80 border-blue-200 text-indigo-950'
-              : 'bg-amber-50/90 border-amber-300 text-amber-950'
+              ? 'bg-secondary/70 border-border text-foreground'
+              : 'bg-amber-500/10 border-amber-500/25 text-amber-900 dark:text-amber-300'
           }`}
         >
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-white shadow-sm shrink-0 mt-0.5">
-              <Store className="w-4 h-4 text-forest-800" />
+            <div className="p-2 rounded-xl bg-card border border-border shadow-xs shrink-0 mt-0.5">
+              <Store className="w-4 h-4 text-primary" />
             </div>
             <div>
               <div className="flex items-center gap-2 font-bold">
-                <span className="text-sm">{activeStore.name}</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white font-semibold border border-current">
+                <span className="text-sm text-foreground">{activeStore.name}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-card font-semibold border border-current">
                   {locationCompatibility.label}
                 </span>
-                <span className="text-[10px] text-warm-500 font-normal">
+                <span className="text-[10px] text-muted-foreground font-normal">
                   (Simulated Demo Availability)
                 </span>
               </div>
-              <p className="mt-1 text-xs text-warm-800 leading-relaxed">
+              <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                 {locationCompatibility.message}
               </p>
             </div>
@@ -254,7 +254,7 @@ export const RetailBrowsePage: React.FC = () => {
             {locationCompatibility.canSwitch && (
               <button
                 onClick={handleSwitchToStoreLocation}
-                className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-900 font-bold text-xs shadow-xs transition-colors cursor-pointer"
               >
                 Set Location to {activeStore.area}
               </button>
@@ -264,7 +264,7 @@ export const RetailBrowsePage: React.FC = () => {
                 setSelectedStoreId(null);
                 setSearchParams({});
               }}
-              className="flex items-center gap-1 text-warm-800 hover:text-rose-700 font-bold px-2.5 py-1.5 rounded-xl bg-white border border-warm-300 hover:bg-warm-50 transition-colors"
+              className="flex items-center gap-1 text-muted-foreground hover:text-destructive font-bold px-2.5 py-1.5 rounded-xl bg-card border border-border hover:bg-muted/40 transition-colors cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear Store Filter</span>
@@ -274,21 +274,21 @@ export const RetailBrowsePage: React.FC = () => {
       )}
 
       {/* Search Input Bar with Suggestions */}
-      <div className="bg-white p-4 rounded-2xl border border-warm-200/90 shadow-soft space-y-3">
+      <div className="bg-card p-4 rounded-2xl border border-border shadow-card space-y-3">
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-warm-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search groceries (e.g. Sharbati Atta, Basmati Rice, Desi Ghee, Sugar 50kg, Turmeric)..."
-            className="w-full pl-10 pr-10 py-2.5 bg-warm-50 border border-warm-300 rounded-xl text-xs sm:text-sm text-warm-950 placeholder:text-warm-500 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:bg-white transition-all"
+            className="w-full pl-10 pr-10 py-2.5 bg-muted/40 border border-input rounded-xl text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-card transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
               aria-label="Clear search input"
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-warm-500 hover:text-warm-900 rounded-md"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-md cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -297,15 +297,15 @@ export const RetailBrowsePage: React.FC = () => {
 
         {/* Quick Search Suggestion Pills */}
         <div className="flex items-center gap-1.5 flex-wrap text-xs">
-          <span className="text-[11px] font-bold text-warm-700 flex items-center gap-1 mr-1">
-            <Sparkles className="w-3 h-3 text-amber-600" />
+          <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1 mr-1">
+            <Sparkles className="w-3 h-3 text-amber-500" />
             Popular:
           </span>
           {POPULAR_SEARCH_TERMS.map(term => (
             <button
               key={term}
               onClick={() => setSearchQuery(term)}
-              className="px-2.5 py-1 rounded-lg bg-warm-100 hover:bg-forest-50 border border-warm-200 text-warm-800 hover:text-forest-900 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600"
+              className="px-2.5 py-1 rounded-lg bg-secondary/50 hover:bg-brand-soft border border-border hover:border-primary/40 text-foreground hover:text-primary text-[11px] font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"
             >
               {term}
             </button>
@@ -315,13 +315,13 @@ export const RetailBrowsePage: React.FC = () => {
 
       {/* Matching Shops Row (if search matches stores as well as items) */}
       {matchingMerchants.length > 0 && (
-        <div className="p-4 bg-white rounded-2xl border border-warm-200 shadow-soft space-y-2.5">
+        <div className="p-4 bg-card rounded-2xl border border-border shadow-card space-y-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-warm-950 flex items-center gap-1.5">
-              <Store className="w-4 h-4 text-forest-700" />
+            <span className="font-bold text-foreground flex items-center gap-1.5">
+              <Store className="w-4 h-4 text-primary" />
               Matching Neighborhood Partner Shops ({matchingMerchants.length})
             </span>
-            <span className="text-warm-600 text-[11px]">Click to shop strictly from this store</span>
+            <span className="text-muted-foreground text-[11px]">Click to shop strictly from this store</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -332,15 +332,15 @@ export const RetailBrowsePage: React.FC = () => {
                   setSelectedStoreId(m.id);
                   setSearchParams({ store: m.id });
                 }}
-                className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
+                className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                   activeStoreId === m.id
-                    ? 'border-forest-700 bg-forest-50 text-forest-950 font-bold'
-                    : 'border-warm-200 hover:border-warm-300 bg-warm-50/50 text-warm-900'
+                    ? 'border-primary bg-brand-soft text-primary font-bold shadow-xs'
+                    : 'border-border hover:border-primary/40 bg-card text-foreground'
                 }`}
               >
                 <div>
-                  <div className="text-xs font-bold">{m.name}</div>
-                  <div className="text-[11px] text-warm-600">{m.area} • {m.deliveryTime}</div>
+                  <div className="text-xs font-bold text-foreground">{m.name}</div>
+                  <div className="text-[11px] text-muted-foreground">{m.area} • {m.deliveryTime}</div>
                 </div>
                 <Badge variant="forest" size="sm">Enter Store</Badge>
               </button>
@@ -350,23 +350,23 @@ export const RetailBrowsePage: React.FC = () => {
       )}
 
       {/* Category Navigation with Visual Scrolling Affordances */}
-      <div className="relative bg-white p-3 rounded-2xl border border-warm-200/90 shadow-soft">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-warm-100 text-xs">
-          <span className="font-bold text-warm-800 uppercase tracking-wider text-[11px]">
+      <div className="relative bg-card p-3 rounded-2xl border border-border shadow-card">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-border text-xs">
+          <span className="font-bold text-foreground uppercase tracking-wider text-[11px]">
             Categories ({CATEGORIES.length})
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => scrollCategories('left')}
               aria-label="Scroll categories left"
-              className="p-1 rounded-lg border border-warm-200 hover:bg-warm-100 text-warm-700 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600"
+              className="p-1 rounded-lg border border-border hover:bg-muted/40 text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => scrollCategories('right')}
               aria-label="Scroll categories right"
-              className="p-1 rounded-lg border border-warm-200 hover:bg-warm-100 text-warm-700 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600"
+              className="p-1 rounded-lg border border-border hover:bg-muted/40 text-foreground transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -380,10 +380,10 @@ export const RetailBrowsePage: React.FC = () => {
         >
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
               selectedCategory === null
-                ? 'bg-forest-900 text-white shadow-sm'
-                : 'bg-warm-50 border border-warm-300 text-warm-800 hover:border-warm-400'
+                ? 'bg-primary text-primary-foreground shadow-card'
+                : 'bg-card border border-border text-foreground hover:border-primary/40'
             }`}
           >
             All Categories ({PRODUCTS.length})
@@ -395,16 +395,16 @@ export const RetailBrowsePage: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(isSelected ? null : cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap flex items-center gap-2 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                   isSelected
-                    ? 'bg-forest-900 text-white shadow-sm font-bold'
-                    : 'bg-warm-50 border border-warm-200 hover:border-warm-300 text-warm-800'
+                    ? 'bg-primary text-primary-foreground shadow-card font-bold'
+                    : 'bg-card border border-border hover:border-primary/40 text-foreground'
                 }`}
               >
                 <span>{cat.name}</span>
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    isSelected ? 'bg-forest-800 text-white' : 'bg-warm-200/80 text-warm-700'
+                    isSelected ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-secondary text-muted-foreground'
                   }`}
                 >
                   {cat.itemCount}
@@ -416,7 +416,7 @@ export const RetailBrowsePage: React.FC = () => {
       </div>
 
       {/* Secondary Controls Bar: Dietary Pills + Sorting */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-warm-200/90 shadow-soft">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card p-3.5 rounded-2xl border border-border shadow-card">
         {/* Dietary and Heritage Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {[
@@ -429,10 +429,10 @@ export const RetailBrowsePage: React.FC = () => {
             <button
               key={pill.id}
               onClick={() => setDietaryFilter(pill.id as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forest-600 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary cursor-pointer ${
                 dietaryFilter === pill.id
-                  ? 'bg-warm-900 text-white font-bold'
-                  : 'bg-warm-50 text-warm-700 hover:text-warm-950 border border-warm-200'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'bg-card text-muted-foreground hover:text-foreground border border-border hover:border-primary/40'
               }`}
             >
               {pill.label}
@@ -442,15 +442,15 @@ export const RetailBrowsePage: React.FC = () => {
 
         {/* Sorting Dropdown */}
         <div className="flex items-center gap-2 text-xs shrink-0">
-          <label htmlFor="sort-dropdown" className="text-warm-700 font-semibold flex items-center gap-1">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-warm-600" />
+          <label htmlFor="sort-dropdown" className="text-muted-foreground font-semibold flex items-center gap-1">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
             Sort by:
           </label>
           <select
             id="sort-dropdown"
             value={sortBy}
             onChange={e => setSortBy(e.target.value as any)}
-            className="bg-warm-50 border border-warm-300 rounded-xl px-3 py-1.5 text-xs text-warm-950 font-semibold focus:outline-none focus:ring-2 focus:ring-forest-600 cursor-pointer"
+            className="bg-card border border-input rounded-xl px-3 py-1.5 text-xs text-foreground font-semibold focus:outline-hidden focus:ring-2 focus:ring-primary cursor-pointer"
           >
             <option value="popular">Most Popular</option>
             <option value="price-low">Price: Low to High</option>
@@ -462,13 +462,13 @@ export const RetailBrowsePage: React.FC = () => {
 
       {/* Product Grid or Empty State */}
       {filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-warm-200 p-12 text-center space-y-4 shadow-soft max-w-lg mx-auto">
-          <div className="w-16 h-16 rounded-full bg-warm-100 flex items-center justify-center text-warm-500 mx-auto">
+        <div className="bg-card rounded-2xl border border-border p-12 text-center space-y-4 shadow-card max-w-lg mx-auto">
+          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-muted-foreground mx-auto">
             <Search className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-warm-950">No grocery products matched</h3>
-            <p className="text-xs text-warm-600 mt-1 max-w-sm mx-auto leading-relaxed">
+            <h3 className="text-base font-bold text-foreground">No grocery products matched</h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
               We couldn't find items matching "{searchQuery || dietaryFilter}". Try clearing your filters or selecting another category.
             </p>
           </div>
@@ -483,12 +483,12 @@ export const RetailBrowsePage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-warm-600 font-medium px-1">
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-medium px-1">
             <span>
-              Showing <strong className="text-warm-950 font-bold">{filteredProducts.length}</strong> items
+              Showing <strong className="text-foreground font-bold">{filteredProducts.length}</strong> items
               {selectedCategory && ` in ${CATEGORIES.find(c => c.id === selectedCategory)?.name}`}
             </span>
-            <span className="text-[11px] text-warm-500">All prices in Indian Rupees (₹)</span>
+            <span className="text-[11px] text-muted-foreground">All prices in Indian Rupees (₹)</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 items-stretch">

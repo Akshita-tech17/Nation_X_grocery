@@ -10,7 +10,6 @@ import {
   Building,
   Send,
   CheckCircle2,
-  Clock,
   Check,
   Plus,
   Trash2,
@@ -113,44 +112,44 @@ export const MerchantQuotationSection: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Subheader and Tabs */}
-      <div className="bg-white rounded-2xl border border-stone-200/90 p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-card rounded-2xl border border-border p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-900">
+            <span className="p-1.5 rounded-lg bg-brand-soft text-primary border border-primary/20">
               <FileText className="w-5 h-5" />
             </span>
-            <h3 className="font-display font-extrabold text-lg text-stone-900">
+            <h3 className="font-heading font-bold text-lg text-foreground">
               Path B — Merchant Quotation Requests (RFQ)
             </h3>
             <Badge variant="blue">Institutional & Commercial</Badge>
           </div>
-          <p className="text-xs text-stone-500 mt-1 max-w-2xl">
+          <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
             For custom volume contracts, full truckload procurements, monthly mess menus, or unlisted mandi commodities.
             Request binding prices directly from APMC mandi millers with GST input tax invoices.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 p-1 bg-stone-100 rounded-xl text-xs font-semibold shrink-0">
+        <div className="flex items-center gap-2 p-1 bg-muted rounded-xl text-xs font-semibold shrink-0 border border-border">
           <button
             onClick={() => setActiveTab('create')}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
               activeTab === 'create'
-                ? 'bg-white text-indigo-950 shadow-sm'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-card text-foreground shadow-card'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             Create New RFQ
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'history'
-                ? 'bg-indigo-900 text-white shadow-sm'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-primary text-primary-foreground shadow-card'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <span>Active Quotations</span>
-            <span className="w-4 h-4 rounded-full bg-amber-400 text-slate-900 text-[10px] font-bold flex items-center justify-center">
+            <span className="w-4 h-4 rounded-full bg-marigold text-marigold-foreground text-[10px] font-bold flex items-center justify-center">
               {quotations.length}
             </span>
           </button>
@@ -158,175 +157,162 @@ export const MerchantQuotationSection: React.FC = () => {
       </div>
 
       {activeTab === 'create' ? (
-        <form onSubmit={handleSubmitRfq} className="bg-white rounded-3xl border border-stone-200 shadow-soft p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmitRfq} className="bg-card rounded-2xl border border-border shadow-card p-6 sm:p-8 space-y-6">
           {/* Business & Logistics Details */}
           <div>
-            <h4 className="font-bold text-sm text-stone-900 flex items-center gap-2 mb-3">
-              <Building className="w-4 h-4 text-indigo-700" />
+            <h4 className="font-semibold text-sm text-foreground flex items-center gap-2 mb-3">
+              <Building className="w-4 h-4 text-primary" />
               1. Business & Invoicing Details
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Business / Firm Name *</label>
+                <label className="font-semibold text-foreground block mb-1">Business / Firm Name *</label>
                 <input
                   type="text"
                   required
                   value={businessName}
                   onChange={e => setBusinessName(e.target.value)}
                   placeholder="e.g. Sagar Caterers & Banquets"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Contact Person *</label>
+                <label className="font-semibold text-foreground block mb-1">Contact Person *</label>
                 <input
                   type="text"
                   required
                   value={contactPerson}
                   onChange={e => setContactPerson(e.target.value)}
                   placeholder="e.g. Anand Hegde"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Mobile / WhatsApp Number *</label>
+                <label className="font-semibold text-foreground block mb-1">Mobile / WhatsApp Number *</label>
                 <input
                   type="text"
                   required
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="+91 98450 00000"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">GSTIN (For 5% / 18% Tax Credit)</label>
+                <label className="font-semibold text-foreground block mb-1">GSTIN (For 5% / 18% Tax Credit)</label>
                 <input
                   type="text"
                   value={gstNumber}
                   onChange={e => setGstNumber(e.target.value)}
                   placeholder="29AAAAA0000A1Z5"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs">
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Delivery Destination / City *</label>
+                <label className="font-semibold text-foreground block mb-1">Delivery Destination / City *</label>
                 <input
                   type="text"
                   required
                   value={deliveryCity}
                   onChange={e => setDeliveryCity(e.target.value)}
-                  placeholder="e.g. Bengaluru (Peenya Industrial Area)"
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  placeholder="e.g. Khammam, Telangana"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">Procurement Frequency</label>
+                <label className="font-semibold text-foreground block mb-1">Procurement Frequency *</label>
                 <select
                   value={frequency}
                   onChange={e => setFrequency(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:bg-white"
+                  className="w-full px-3 py-2 bg-card border border-border rounded-xl text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 >
-                  <option value="one-time">One-time Spot Order</option>
+                  <option value="one-time">One-Time Bulk Order</option>
                   <option value="weekly">Weekly Recurring Standing Order</option>
-                  <option value="bi-weekly">Bi-Weekly Contract</option>
-                  <option value="monthly">Monthly Standing Supply</option>
+                  <option value="bi-weekly">Bi-Weekly Deliveries</option>
+                  <option value="monthly">Monthly Master Restock</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Commodities Requirements */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-bold text-sm text-stone-900 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-700" />
-                2. Commodities & Requested Lots
+          {/* Commodity Items Required */}
+          <div className="space-y-3 pt-3 border-t border-border">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-sm text-foreground">
+                2. Requested Commodities & Specifications
               </h4>
               <button
                 type="button"
                 onClick={handleAddItemRow}
-                className="text-xs font-semibold text-indigo-700 hover:text-indigo-950 flex items-center gap-1"
+                className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Add Another Commodity</span>
+                <span>Add Item Row</span>
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="p-3.5 bg-stone-50/70 border border-stone-200 rounded-2xl grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
-                >
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 rounded-xl bg-muted/40 border border-border items-center">
                   <div className="sm:col-span-5">
-                    <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">
-                      Commodity Name / Specification
-                    </label>
+                    <label className="text-[10px] text-muted-foreground block mb-0.5">Commodity / Brand Grade</label>
                     <input
                       type="text"
                       required
+                      placeholder="e.g. Sona Masoori Raw Rice 2-year aged"
                       value={item.commodity}
                       onChange={e => handleItemChange(index, 'commodity', e.target.value)}
-                      placeholder="e.g. Aged Basmati, Sharbati Atta, Yellow Toor Dal"
-                      className="w-full px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900"
+                      className="w-full px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">
-                      Quantity
-                    </label>
+                    <label className="text-[10px] text-muted-foreground block mb-0.5">Quantity</label>
                     <input
                       type="text"
                       required
+                      placeholder="e.g. 50"
                       value={item.quantity}
                       onChange={e => handleItemChange(index, 'quantity', e.target.value)}
-                      placeholder="e.g. 20"
-                      className="w-full px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-mono text-stone-900"
+                      className="w-full px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs font-mono font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">
-                      Pack / Unit
-                    </label>
+                    <label className="text-[10px] text-muted-foreground block mb-0.5">Packing Unit</label>
                     <input
                       type="text"
                       required
+                      placeholder="e.g. 25kg bags"
                       value={item.unit}
                       onChange={e => handleItemChange(index, 'unit', e.target.value)}
-                      placeholder="e.g. 50kg sacks, 5kg bags"
-                      className="w-full px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900"
+                      className="w-full px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">
-                      Target Price (₹)
-                    </label>
+                    <label className="text-[10px] text-muted-foreground block mb-0.5">Target Rate (₹/unit)</label>
                     <input
                       type="number"
+                      placeholder="Optional (₹)"
                       value={item.targetPrice || ''}
                       onChange={e => handleItemChange(index, 'targetPrice', Number(e.target.value))}
-                      placeholder="Optional"
-                      className="w-full px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs font-mono text-stone-900"
+                      className="w-full px-2.5 py-1.5 bg-card border border-border rounded-lg text-xs font-mono text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                     />
                   </div>
 
-                  <div className="sm:col-span-1 flex items-end justify-center pt-2 sm:pt-0">
+                  <div className="sm:col-span-1 flex justify-end">
                     <button
                       type="button"
                       onClick={() => handleRemoveItemRow(index)}
-                      disabled={items.length <= 1}
-                      className="p-2 text-stone-400 hover:text-rose-600 disabled:opacity-30 transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                       title="Remove row"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -338,17 +324,16 @@ export const MerchantQuotationSection: React.FC = () => {
           </div>
 
           {/* Submit Action */}
-          <div className="pt-4 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-xs text-stone-500 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Quotes typically finalized by Mandi Desk in 2-4 business hours</span>
+          <div className="pt-4 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="text-xs text-muted-foreground">
+              ⚡ Mandi Central Desk automatically broadcasts your RFQ to certified APMC traders in Khammam & Hyderabad.
             </div>
 
             <Button
               type="submit"
-              variant="amber"
+              variant="primary"
               size="lg"
-              className="font-bold shadow-soft w-full sm:w-auto"
+              className="w-full sm:w-auto"
               icon={<Send className="w-4 h-4" />}
             >
               Submit Commercial Mandi RFQ
@@ -358,10 +343,10 @@ export const MerchantQuotationSection: React.FC = () => {
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-sm text-stone-900">
+            <h4 className="font-heading font-bold text-sm text-foreground">
               Your Active Mandi Quotations ({quotations.length})
             </h4>
-            <span className="text-xs text-stone-500">
+            <span className="text-xs text-muted-foreground">
               Click "Accept & Order" to lock in the agreed Mandi rate
             </span>
           </div>
@@ -377,27 +362,27 @@ export const MerchantQuotationSection: React.FC = () => {
                   key={rfq.id}
                   className={`p-5 rounded-2xl border transition-all ${
                     isAccepted
-                      ? 'bg-emerald-50/50 border-emerald-200'
+                      ? 'bg-brand-soft/50 border-primary/30 shadow-card'
                       : isQuoted
-                      ? 'bg-white border-indigo-300 shadow-soft-md'
-                      : 'bg-white border-stone-200 shadow-soft'
+                      ? 'bg-card border-primary/40 shadow-card'
+                      : 'bg-card border-border shadow-card'
                   }`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-xl ${isAccepted ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-900'}`}>
+                      <div className={`p-2 rounded-xl ${isAccepted ? 'bg-brand-soft text-primary' : 'bg-muted text-foreground'}`}>
                         <FileText className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold font-mono text-sm text-stone-900">{rfq.id}</span>
-                          <span className="text-xs font-semibold text-stone-600">• {rfq.businessName}</span>
+                          <span className="font-bold font-mono text-sm text-foreground">{rfq.id}</span>
+                          <span className="text-xs font-semibold text-muted-foreground">• {rfq.businessName}</span>
                           {rfq.status === 'under_review' && <Badge variant="blue">Under Mandi Review</Badge>}
                           {rfq.status === 'quoted' && !isExpired && <Badge variant="saffron">Quotation Ready (Special Rate)</Badge>}
                           {rfq.status === 'quoted' && isExpired && <Badge variant="rose">Quotation Expired</Badge>}
                           {rfq.status === 'accepted' && <Badge variant="forest">Accepted & Order Created</Badge>}
                         </div>
-                        <p className="text-[11px] text-stone-400 mt-0.5">
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
                           Submitted: {rfq.date} • Frequency: <strong className="capitalize">{rfq.frequency}</strong> • Destination: {rfq.deliveryCity}
                         </p>
                       </div>
@@ -405,11 +390,11 @@ export const MerchantQuotationSection: React.FC = () => {
 
                     {rfq.quotedPrice && (
                       <div className="text-right">
-                        <div className="text-xs text-stone-500 font-medium">Binding Mandi Quote</div>
-                        <div className="text-xl font-bold font-mono text-forest-950">
+                        <div className="text-xs text-muted-foreground font-medium">Binding Mandi Quote</div>
+                        <div className="text-xl font-bold font-mono text-foreground">
                           ₹{rfq.quotedPrice.toLocaleString('en-IN')}
                         </div>
-                        <div className={`text-[11px] font-semibold ${isExpired ? 'text-rose-600' : 'text-emerald-700'}`}>
+                        <div className={`text-[11px] font-semibold ${isExpired ? 'text-destructive' : 'text-primary'}`}>
                           {isExpired ? 'Expired' : `Valid until ${new Date(rfq.validUntil || '').toLocaleDateString()}`}
                         </div>
                       </div>
@@ -418,21 +403,21 @@ export const MerchantQuotationSection: React.FC = () => {
 
                   {/* Items summary */}
                   <div className="py-3 text-xs space-y-2">
-                    <div className="font-semibold text-stone-700 uppercase text-[10px] tracking-wider">
+                    <div className="font-semibold text-foreground uppercase text-[10px] tracking-wider">
                       Requested Commodities ({rfq.items.length})
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {rfq.items.map((it, idx) => (
-                        <div key={idx} className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 flex items-center justify-between">
-                          <span className="font-medium text-stone-900">{it.commodity}</span>
-                          <span className="font-mono font-bold text-indigo-950">{it.quantity} {it.unit}</span>
+                        <div key={idx} className="p-2.5 rounded-lg bg-muted/40 border border-border flex items-center justify-between">
+                          <span className="font-medium text-foreground">{it.commodity}</span>
+                          <span className="font-mono font-bold text-primary">{it.quantity} {it.unit}</span>
                         </div>
                       ))}
                     </div>
 
                     {rfq.mandiNotes && (
-                      <div className="mt-2 p-2.5 bg-blue-50/60 border border-blue-200 rounded-lg text-indigo-900 text-[11px] flex items-center gap-2">
-                        <TrendingDown className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <div className="mt-2 p-2.5 bg-brand-soft/40 border border-primary/20 rounded-lg text-foreground text-[11px] flex items-center gap-2">
+                        <TrendingDown className="w-4 h-4 text-primary shrink-0" />
                         <span><strong>Mandi Trader Desk Note:</strong> {rfq.mandiNotes}</span>
                       </div>
                     )}
@@ -440,16 +425,16 @@ export const MerchantQuotationSection: React.FC = () => {
 
                   {/* Actions */}
                   {isQuoted && !isAccepted && (
-                    <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-3">
+                    <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
                       {isExpired ? (
-                        <div className="flex items-center gap-1.5 text-xs text-rose-600 font-semibold">
+                        <div className="flex items-center gap-1.5 text-xs text-destructive font-semibold">
                           <AlertTriangle className="w-4 h-4" />
                           <span>This quote has expired. Please submit a new RFQ to receive refreshed mandi rates.</span>
                         </div>
                       ) : (
                         <Button
                           size="sm"
-                          variant="amber"
+                          variant="primary"
                           disabled={acceptingRfqId === rfq.id}
                           onClick={() => handleAcceptQuotation(rfq.id)}
                           icon={<Check className="w-4 h-4" />}
@@ -461,15 +446,15 @@ export const MerchantQuotationSection: React.FC = () => {
                   )}
 
                   {isAccepted && (
-                    <div className="pt-3 border-t border-emerald-100 flex items-center justify-between text-xs font-semibold text-emerald-800">
+                    <div className="pt-3 border-t border-primary/20 flex items-center justify-between text-xs font-semibold text-primary">
                       <div className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
                         <span>Order generated and transmitted to APMC Dispatch Hub.</span>
                       </div>
                       {rfq.resultingOrderId && (
                         <Link
                           to={`/orders?id=${rfq.resultingOrderId}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-forest-900 text-white font-bold hover:bg-forest-950 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors shadow-card"
                         >
                           <span>Track Order #{rfq.resultingOrderId}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
