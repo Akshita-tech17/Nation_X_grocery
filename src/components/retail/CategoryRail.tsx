@@ -21,10 +21,10 @@ export const CategoryRail: React.FC = () => {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-display text-lg sm:text-xl font-bold text-stone-900 tracking-tight">
+          <h2 className="font-heading text-lg sm:text-xl font-bold text-foreground tracking-tight">
             Shop by Category
           </h2>
-          <p className="text-xs text-stone-600 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             Fresh flours, aged rice, cold-pressed oils and verified organic staples
           </p>
         </div>
@@ -33,7 +33,7 @@ export const CategoryRail: React.FC = () => {
             setSelectedCategory(null);
             navigate('/browse');
           }}
-          className="text-xs font-semibold text-forest-800 hover:text-forest-950 flex items-center gap-1 group transition-colors"
+          className="text-xs font-semibold text-primary hover:text-primary/80 flex items-center gap-1 group transition-colors cursor-pointer"
         >
           <span>View All ({CATEGORIES.length})</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -47,13 +47,13 @@ export const CategoryRail: React.FC = () => {
             <div
               key={cat.id}
               onClick={() => handleCategoryClick(cat.id)}
-              className={`group cursor-pointer rounded-2xl p-3 text-center border transition-all duration-200 flex flex-col items-center justify-between ${
+              className={`group cursor-pointer rounded-xl p-3 text-center border transition-all duration-200 flex flex-col items-center justify-between ${
                 isSelected
-                  ? 'bg-forest-900 text-white border-forest-900 shadow-sm'
-                  : 'bg-white hover:bg-stone-50 border-stone-200/80 hover:border-forest-600/40 shadow-sm'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-card'
+                  : 'bg-card hover:bg-muted border-border hover:border-primary/40 shadow-card'
               }`}
             >
-              <div className="w-14 h-14 rounded-full overflow-hidden mb-2.5 bg-stone-100 shrink-0 border border-stone-100">
+              <div className="w-14 h-14 rounded-full overflow-hidden mb-2.5 bg-muted shrink-0 border border-border">
                 <img
                   src={cat.image}
                   alt={cat.name}
@@ -63,15 +63,15 @@ export const CategoryRail: React.FC = () => {
 
               <div className="space-y-0.5 w-full">
                 <h3
-                  className={`text-xs font-bold leading-tight line-clamp-2 ${
-                    isSelected ? 'text-white' : 'text-stone-900 group-hover:text-forest-900'
+                  className={`text-xs font-semibold leading-tight line-clamp-2 ${
+                    isSelected ? 'text-primary-foreground' : 'text-foreground group-hover:text-primary'
                   }`}
                 >
                   {cat.name}
                 </h3>
                 <span
-                  className={`text-[10px] block ${
-                    isSelected ? 'text-emerald-200' : 'text-stone-600 font-medium'
+                  className={`text-[10px] block font-medium ${
+                    isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'
                   }`}
                 >
                   {cat.itemCount} items

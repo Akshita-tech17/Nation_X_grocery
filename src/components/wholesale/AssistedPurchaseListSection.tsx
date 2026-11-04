@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PRODUCTS } from '../../data/products';
 import { Product, ParsedPurchaseItem } from '../../types';
 import { useCart } from '../../context/CartContext';
@@ -6,7 +6,6 @@ import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import {
   ListPlus,
-  Sparkles,
   ClipboardList,
   FileSpreadsheet,
   Upload,
@@ -15,7 +14,9 @@ import {
   Download,
   AlertCircle,
   ShoppingBag,
-  ArrowRight
+  ArrowRight,
+  CheckCircle2,
+  HelpCircle
 } from 'lucide-react';
 
 const PRESET_LISTS = [
@@ -47,11 +48,13 @@ California Almonds 1kg - 8 packs`
 
 export const AssistedPurchaseListSection: React.FC = () => {
   const { addToCart, showToast } = useCart();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [inputMode, setInputMode] = useState<'text' | 'grid' | 'csv'>('text');
   const [rawText, setRawText] = useState(PRESET_LISTS[0].text);
   const [parsedItems, setParsedItems] = useState<ParsedPurchaseItem[]>([]);
   const [isParsed, setIsParsed] = useState(false);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
 
   // Spreadsheet Grid Rows state
   const [gridRows, setGridRows] = useState<{ productId: string; quantity: number }[]>([
@@ -61,74 +64,216 @@ export const AssistedPurchaseListSection: React.FC = () => {
     { productId: 'prod-sona-masoori-25kg', quantity: 5 }
   ]);
 
-  // Intelligent parser function
+  /**
+   * Genuine token-based catalog matcher with legitimate evidence scoring
+   */
+  const matchCatalogueProduct = (line: string): { matchedProduct?: Product; confidence: number; isUncertain: boolean } => {
+    const lower = line.toLowerCase();
+    let bestProduct: Product | undefined;
+    let highestScore = 0;
+
+    for (const prod of PRODUCTS) {
+      let score = 0;
+      const pName = prod.name.toLowerCase();
+      const pBrand = prod.brand.toLowerCase();
+      const pCat = prod.category.toLowerCase();
+      const pVariant = (prod.variant || '').toLowerCase();
+
+      // Brand exact token
+      if (lower.includes(pBrand)) score += 30;
+      // Category token match
+      if (lower.includes(pCat)) score += 10;
+      // Name tokens
+      const nameTokens = pName.split(' ').filter(t => t.length > 2);
+      let matchedTokens = 0;
+      nameTokens.forEach(t => {
+        if (lower.includes(t)) matchedTokens++;
+      });
+      score += Math.min(40, matchedTokens * 8);
+
+      // Commodity keywords
+      if (lower.includes('atta') && pName.includes('atta')) score += 15;
+      if (lower.includes('sharbati') && pName.includes('sharbati')) score += 20;
+      if (lower.includes('basmati') && pName.includes('basmati')) score += 25;
+      if (lower.includes('sugar') && pName.includes('sugar')) score += 20;
+      if (lower.includes('rice') && pName.includes('rice')) score += 15;
+      if (lower.includes('toor') && pName.includes('toor')) score += 20;
+      if (lower.includes('ghee') && pName.includes('ghee')) score += 25;
+      if (lower.includes('mustard') && pName.includes('mustard')) score += 20;
+      if (lower.includes('paneer') && pName.includes('paneer')) score += 20;
+      if (lower.includes('kesar') && pName.includes('kesar')) score += 25;
+      if (lower.includes('salt') && pName.includes('salt')) score += 20;
+      if (lower.includes('almond') && pName.includes('almond')) score += 20;
+      if (pVariant && lower.includes(pVariant)) score += 15;
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestProduct = prod;
+      }
+    }
+
+    const normalizedConfidence = Math.min(100, highestScore);
+    const isUncertain = normalizedConfidence < 50 || !bestProduct;
+
+    return {
+      matchedProduct: bestProduct,
+      confidence: normalizedConfidence,
+      isUncertain
+    };
+  };
+
+  /**
+   * Review-first parser workflow
+   */
   const parseList = (textToParse: string) => {
     const lines = textToParse
       .split('\n')
       .map(l => l.trim())
       .filter(l => l.length > 0);
 
-    const parsed: ParsedPurchaseItem[] = lines.map(line => {
+    const parsed: ParsedPurchaseItem[] = lines.map((line, idx) => {
       const lower = line.toLowerCase();
-
       // Extract quantity: looks for numbers
       const numMatch = lower.match(/\b(\d+)\b/);
       const quantity = numMatch ? Math.max(1, parseInt(numMatch[1], 10)) : 5;
 
-      // Match against PRODUCTS
-      let matchedProduct: Product | undefined;
-      let highestScore = 0;
-
-      for (const prod of PRODUCTS) {
-        let score = 0;
-        const pName = prod.name.toLowerCase();
-        const pBrand = prod.brand.toLowerCase();
-        const pCat = prod.category.toLowerCase();
-        const pSub = prod.subCategory.toLowerCase();
-
-        if (lower.includes(pBrand)) score += 4;
-        if (lower.includes(pCat)) score += 2;
-
-        // Keyword checks
-        if (lower.includes('atta') && (pName.includes('atta') || pSub.includes('atta'))) score += 5;
-        if (lower.includes('sharbati') && pName.includes('sharbati')) score += 6;
-        if (lower.includes('basmati') && pName.includes('basmati')) score += 7;
-        if (lower.includes('rice') && pName.includes('rice')) score += 4;
-        if (lower.includes('sona masoori') && pName.includes('sona masoori')) score += 8;
-        if (lower.includes('toor') && pName.includes('toor')) score += 7;
-        if (lower.includes('dal') && pName.includes('dal')) score += 4;
-        if (lower.includes('ghee') && pName.includes('ghee')) score += 7;
-        if (lower.includes('mustard') && pName.includes('mustard')) score += 7;
-        if (lower.includes('oil') && pName.includes('oil')) score += 3;
-        if (lower.includes('sugar') && pName.includes('sugar')) score += 7;
-        if (lower.includes('paneer') && pName.includes('paneer')) score += 7;
-        if (lower.includes('pepper') && pName.includes('pepper')) score += 7;
-        if (lower.includes('almond') && pName.includes('almond')) score += 7;
-        if (lower.includes('kesar') || lower.includes('saffron')) {
-          if (pName.includes('kesar') || pName.includes('saffron')) score += 8;
-        }
-        if (lower.includes('salt') && pName.includes('salt')) score += 7;
-        if (lower.includes('cashew') && pName.includes('cashew')) score += 7;
-        if (lower.includes('apple') && pName.includes('apple')) score += 7;
-
-        if (score > highestScore) {
-          highestScore = score;
-          matchedProduct = prod;
-        }
-      }
+      const { matchedProduct, confidence, isUncertain } = matchCatalogueProduct(line);
 
       return {
+        id: `parsed-${idx}-${Date.now()}`,
         rawLine: line,
+        matchedMasterProductId: matchedProduct?.id,
+        matchedOfferingId: matchedProduct?.offeringId,
         matchedProduct,
+        matchedShopId: matchedProduct?.merchantId,
+        matchedShopName: matchedProduct?.merchantName,
         quantity,
-        confidence: highestScore >= 5 ? 0.95 : highestScore > 0 ? 0.75 : 0.3,
-        unit: matchedProduct?.unit || 'units'
+        unit: matchedProduct?.unit || 'bags / units',
+        packSize: matchedProduct?.packSize,
+        confidence,
+        isUncertain,
+        manualCorrectionNeeded: isUncertain,
+        userConfirmed: !isUncertain
       };
     });
 
     setParsedItems(parsed);
     setIsParsed(true);
-    showToast(`✨ Smart Parser processed ${parsed.length} line items!`);
+    showToast(`Parsed ${parsed.length} items. Please review matches before adding to basket.`);
+  };
+
+  const handleUpdateParsedItem = (
+    id: string,
+    field: 'productId' | 'quantity' | 'unit',
+    value: any
+  ) => {
+    setParsedItems(prev =>
+      prev.map(it => {
+        if (it.id === id) {
+          if (field === 'productId') {
+            const prod = PRODUCTS.find(p => p.id === value);
+            return {
+              ...it,
+              matchedMasterProductId: prod?.id,
+              matchedOfferingId: prod?.offeringId,
+              matchedProduct: prod,
+              matchedShopId: prod?.merchantId,
+              matchedShopName: prod?.merchantName,
+              unit: prod?.unit || it.unit,
+              packSize: prod?.packSize,
+              isUncertain: false,
+              userConfirmed: true
+            };
+          }
+          if (field === 'quantity') {
+            return { ...it, quantity: Math.max(1, Number(value)) };
+          }
+          if (field === 'unit') {
+            return { ...it, unit: value };
+          }
+        }
+        return it;
+      })
+    );
+  };
+
+  const handleRemoveParsedItem = (id: string) => {
+    setParsedItems(prev => prev.filter(it => it.id !== id));
+  };
+
+  /**
+   * Real CSV File Reader
+   */
+  const handleCsvFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+
+    reader.onload = event => {
+      const text = event.target?.result as string;
+      if (!text || text.trim().length === 0) {
+        showToast('CSV file is empty!');
+        return;
+      }
+
+      const lines = text
+        .split(/\r\n|\n/)
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+
+      // Skip header row if it contains 'item' or 'commodity'
+      const dataLines = lines[0].toLowerCase().includes('item') || lines[0].toLowerCase().includes('commodity') || lines[0].toLowerCase().includes('product')
+        ? lines.slice(1)
+        : lines;
+
+      if (dataLines.length === 0) {
+        showToast('No grocery items found in uploaded CSV.');
+        return;
+      }
+
+      // Convert CSV lines (e.g. "Aashirvaad Atta, 10, bags") to list text
+      const extractedText = dataLines
+        .map(line => {
+          const parts = line.split(',').map(p => p.trim().replace(/^["']|["']$/g, ''));
+          if (parts.length >= 2) {
+            return `${parts[0]} - ${parts[1]} ${parts[2] || ''}`;
+          }
+          return parts[0];
+        })
+        .join('\n');
+
+      setRawText(extractedText);
+      parseList(extractedText);
+      setInputMode('text');
+      showToast(`Successfully imported ${dataLines.length} rows from ${file.name}!`);
+    };
+
+    reader.onerror = () => {
+      showToast('Error reading uploaded CSV file.');
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleDownloadCsvTemplate = () => {
+    const templateContent = `Commodity Name,Quantity,Unit,Target Price
+Aashirvaad MP Sharbati Atta,15,5kg bags,315
+India Gate Classic Basmati Rice,10,5kg bags,730
+Dhampur Refined Sugar,4,50kg gunny sacks,2150
+Pure Desi Gir Cow Vedic Ghee,5,1L jars,1320
+Tata Sampann Toor Dal,20,1kg packs,155`;
+
+    const blob = new Blob([templateContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'nationx_b2b_grocery_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Downloaded nationx_b2b_grocery_template.csv');
   };
 
   const handleAddAllParsedToCart = () => {
@@ -139,7 +284,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
         addedCount++;
       }
     });
-    showToast(`🛒 Successfully added ${addedCount} bulk items to your basket!`);
+    showToast(`🛒 Successfully added ${addedCount} verified bulk items to your basket!`);
   };
 
   const handleAddGridToCart = () => {
@@ -155,30 +300,29 @@ export const AssistedPurchaseListSection: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Subheader and Mode Selector */}
-      <div className="bg-white rounded-2xl border border-warm-200/90 p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-card rounded-2xl border border-border p-5 sm:p-6 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-900">
+            <span className="p-1.5 rounded-lg bg-brand-soft text-primary">
               <ListPlus className="w-5 h-5" />
             </span>
-            <h3 className="font-display font-extrabold text-lg text-warm-900">
+            <h3 className="font-display font-bold text-lg text-foreground">
               Path C — Assisted Purchase-List Entry
             </h3>
-            <Badge variant="forest">Fastest B2B Checkout</Badge>
+            <Badge variant="forest">Review-First Workflow</Badge>
           </div>
-          <p className="text-xs text-warm-500 mt-1 max-w-2xl">
-            Designed for busy Kirana owners, restaurant chefs, and mess supervisors. Paste your raw WhatsApp/handwritten list,
-            use the rapid spreadsheet SKU grid, or upload a CSV order template without searching one by one.
+          <p className="text-xs text-muted-foreground mt-1 max-w-2xl">
+            Designed for Kirana shopkeepers, catering chefs, and hostel supervisors. Paste unformatted notes, use our SKU spreadsheet grid, or upload an actual CSV file.
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-warm-100 rounded-xl text-xs font-semibold shrink-0">
+        <div className="flex items-center gap-1.5 p-1 bg-secondary/60 rounded-xl text-xs font-semibold shrink-0">
           <button
             onClick={() => setInputMode('text')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'text'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-warm-600 hover:text-warm-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <ClipboardList className="w-3.5 h-3.5" />
@@ -189,8 +333,8 @@ export const AssistedPurchaseListSection: React.FC = () => {
             onClick={() => setInputMode('grid')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'grid'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-warm-600 hover:text-warm-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -201,8 +345,8 @@ export const AssistedPurchaseListSection: React.FC = () => {
             onClick={() => setInputMode('csv')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
               inputMode === 'csv'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-warm-600 hover:text-warm-900'
+                ? 'bg-card text-primary shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
@@ -215,18 +359,18 @@ export const AssistedPurchaseListSection: React.FC = () => {
       {inputMode === 'text' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Text Box & Presets */}
-          <div className="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-warm-200 shadow-soft space-y-4">
+          <div className="lg:col-span-5 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-bold text-sm text-warm-900 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                Paste Purchase List
+              <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                <ClipboardList className="w-4 h-4 text-primary" />
+                Raw WhatsApp / Text List
               </h4>
-              <span className="text-[11px] text-warm-400">1 item per line</span>
+              <span className="text-[11px] text-muted-foreground">1 item per line</span>
             </div>
 
             {/* Quick Presets */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-warm-400 block">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
                 Load Sample Indian Bulk Lists:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -238,7 +382,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                       setRawText(p.text);
                       setIsParsed(false);
                     }}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-warm-50 hover:bg-forest-50 border border-warm-200 hover:border-forest-300 text-warm-700 hover:text-forest-900 transition-colors font-medium text-left"
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-secondary/50 hover:bg-brand-soft border border-border hover:border-primary/40 text-foreground hover:text-primary transition-colors font-medium text-left"
                   >
                     {p.name.split(' (')[0]}
                   </button>
@@ -247,95 +391,148 @@ export const AssistedPurchaseListSection: React.FC = () => {
             </div>
 
             <textarea
-              rows={9}
+              rows={8}
               value={rawText}
               onChange={e => {
                 setRawText(e.target.value);
                 setIsParsed(false);
               }}
               placeholder={`Paste your list here, e.g.:\n25kg Sona Masoori Rice - 4 bags\nMP Sharbati Atta - 15 bags\nDhampur Sugar 50kg - 2 sacks\nPure Desi Ghee - 6 jars`}
-              className="w-full p-3.5 bg-warm-50/70 border border-warm-200 rounded-2xl text-xs font-mono text-warm-900 focus:outline-none focus:ring-2 focus:ring-forest-600 focus:bg-white resize-none shadow-inner"
+              className="w-full p-3.5 bg-muted/40 border border-input rounded-xl text-xs font-mono text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-card resize-none shadow-inner"
             />
+
+            <div className="p-3 rounded-xl bg-secondary/50 text-[11px] text-muted-foreground space-y-1 border border-border">
+              <div className="font-semibold text-foreground flex items-center gap-1">
+                <HelpCircle className="w-3.5 h-3.5 text-primary" />
+                <span>Notice on Automated Extraction</span>
+              </div>
+              <p>
+                Keyword matching maps text to master catalog SKUs. High-risk matching flags uncertain items for manual review. Camera OCR remains pending integration.
+              </p>
+            </div>
 
             <Button
               variant="primary"
               size="md"
-              className="w-full font-bold shadow-soft"
+              className="w-full font-bold shadow-card"
               onClick={() => parseList(rawText)}
-              icon={<Sparkles className="w-4 h-4 text-emerald-300" />}
+              icon={<ArrowRight className="w-4 h-4" />}
+              iconPosition="right"
             >
-              Auto-Parse & Match Catalog
+              Parse & Match Against Catalogue
             </Button>
           </div>
 
-          {/* Right Parsed Results */}
-          <div className="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-warm-200 shadow-soft flex flex-col justify-between space-y-4">
+          {/* Right Parsed Results with Review Controls */}
+          <div className="lg:col-span-7 bg-card p-5 sm:p-6 rounded-2xl border border-border shadow-card flex flex-col justify-between space-y-4">
             <div>
-              <div className="flex items-center justify-between border-b border-warm-100 pb-3">
+              <div className="flex items-center justify-between border-b border-border pb-3">
                 <div>
-                  <h4 className="font-bold text-sm text-warm-900">
-                    Matched Catalog Commodities
+                  <h4 className="font-bold text-sm text-foreground">
+                    Review Matched Catalogue Items
                   </h4>
-                  <p className="text-xs text-warm-500">
-                    Smart mapping with volume tier pricing & MOQ enforcement
+                  <p className="text-xs text-muted-foreground">
+                    Verify matched SKU, quantity and shop before confirmation
                   </p>
                 </div>
                 {isParsed && (
-                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  <span className="text-xs font-bold text-primary bg-brand-soft px-2.5 py-1 rounded-full border border-primary/20">
                     {parsedItems.length} lines parsed
                   </span>
                 )}
               </div>
 
               {!isParsed ? (
-                <div className="py-16 text-center space-y-3 text-warm-400">
-                  <ClipboardList className="w-12 h-12 mx-auto stroke-1 text-warm-300" />
-                  <p className="text-xs max-w-xs mx-auto text-warm-500">
-                    Click <strong>"Auto-Parse & Match Catalog"</strong> to convert raw notes into verified grocery SKUs with live discount tiers.
+                <div className="py-16 text-center space-y-3 text-muted-foreground">
+                  <ClipboardList className="w-12 h-12 mx-auto stroke-1 text-muted-foreground/60" />
+                  <p className="text-xs max-w-xs mx-auto text-muted-foreground">
+                    Click <strong>"Parse & Match Against Catalogue"</strong> to convert raw notes into verified grocery SKUs with live discount tiers.
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2.5 mt-3 max-h-[360px] overflow-y-auto pr-1">
-                  {parsedItems.map((item, idx) => (
+                <div className="space-y-3 mt-3 max-h-[380px] overflow-y-auto pr-1">
+                  {parsedItems.map(item => (
                     <div
-                      key={idx}
-                      className="p-3 rounded-xl border border-warm-200 bg-warm-50/50 flex items-center justify-between gap-3 text-xs"
+                      key={item.id}
+                      className={`p-3.5 rounded-xl border transition-all text-xs space-y-2.5 ${
+                        item.isUncertain
+                          ? 'border-amber-500/30 bg-amber-500/10'
+                          : 'border-border bg-card'
+                      }`}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
-                        {item.matchedProduct ? (
-                          <img
-                            src={item.matchedProduct.image}
-                            alt={item.matchedProduct.name}
-                            className="w-11 h-11 rounded-lg object-cover border border-warm-200 shrink-0"
-                          />
-                        ) : (
-                          <div className="w-11 h-11 rounded-lg bg-warm-200 flex items-center justify-center shrink-0 text-warm-500">
-                            <AlertCircle className="w-5 h-5" />
-                          </div>
-                        )}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          {item.matchedProduct ? (
+                            <img
+                              src={item.matchedProduct.image}
+                              alt={item.matchedProduct.name}
+                              className="w-12 h-12 rounded-xl object-cover border border-border shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                              <AlertCircle className="w-5 h-5" />
+                            </div>
+                          )}
 
-                        <div className="min-w-0">
-                          <div className="font-bold text-warm-900 truncate">
-                            {item.matchedProduct ? item.matchedProduct.name : item.rawLine}
-                          </div>
-                          <div className="text-[11px] text-warm-500 flex items-center gap-2 mt-0.5">
-                            <span>Input: "{item.rawLine}"</span>
-                            {item.matchedProduct && (
-                              <span className="text-emerald-700 font-semibold">• Sourced from {item.matchedProduct.origin}</span>
-                            )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-[11px] text-muted-foreground font-mono">
+                              Raw: "{item.rawLine}"
+                            </div>
+
+                            {/* Dropdown to change matched product */}
+                            <div className="mt-1">
+                              <select
+                                value={item.matchedProduct?.id || ''}
+                                onChange={e => handleUpdateParsedItem(item.id, 'productId', e.target.value)}
+                                className="w-full px-2.5 py-1 bg-card border border-input rounded-lg text-xs font-semibold text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
+                              >
+                                {PRODUCTS.map(p => (
+                                  <option key={p.id} value={p.id}>
+                                    {p.name} ({p.unit}) • {p.merchantName}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveParsedItem(item.id)}
+                          className="text-muted-foreground hover:text-destructive p-1 transition-colors"
+                          title="Remove item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
 
-                      <div className="text-right shrink-0">
-                        <div className="font-mono font-bold text-sm text-forest-950">
-                          {item.quantity}x {item.unit}
+                      {/* Row Controls: Quantity & Confidence Badge */}
+                      <div className="flex items-center justify-between border-t border-border pt-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <label className="font-semibold text-muted-foreground">Qty:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={e => handleUpdateParsedItem(item.id, 'quantity', e.target.value)}
+                            className="w-16 px-2 py-0.5 bg-card border border-input rounded-lg text-center font-bold font-mono text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
+                          />
+                          <span className="text-muted-foreground">{item.unit}</span>
                         </div>
-                        {item.matchedProduct && (
-                          <span className="text-[10px] text-indigo-700 font-semibold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
-                            Bulk Tier Active
-                          </span>
-                        )}
+
+                        <div className="flex items-center gap-2">
+                          {item.isUncertain ? (
+                            <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" />
+                              Uncertain match ({item.confidence}% confidence)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold text-primary bg-brand-soft border border-primary/25 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Confident match ({item.confidence}%)
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -344,9 +541,9 @@ export const AssistedPurchaseListSection: React.FC = () => {
             </div>
 
             {isParsed && (
-              <div className="pt-3 border-t border-warm-100 flex items-center justify-between">
-                <span className="text-xs text-warm-500">
-                  Ready to add directly into your B2B basket
+              <div className="pt-3 border-t border-border flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {parsedItems.length} lines ready for basket
                 </span>
                 <Button
                   variant="amber"
@@ -354,7 +551,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                   onClick={handleAddAllParsedToCart}
                   icon={<ShoppingBag className="w-4 h-4" />}
                 >
-                  Add All Matched Items to Basket
+                  Confirm & Add Verified Items to Basket
                 </Button>
               </div>
             )}
@@ -364,13 +561,13 @@ export const AssistedPurchaseListSection: React.FC = () => {
 
       {/* Mode 2: Rapid Multi-Row Spreadsheet SKU Grid */}
       {inputMode === 'grid' && (
-        <div className="bg-white rounded-3xl border border-warm-200 shadow-soft p-6 sm:p-8 space-y-5">
+        <div className="bg-card rounded-2xl border border-border shadow-card p-6 sm:p-8 space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-bold text-sm text-warm-900">
+              <h4 className="font-bold text-sm text-foreground">
                 Spreadsheet-Style Rapid SKU Matrix
               </h4>
-              <p className="text-xs text-warm-500">
+              <p className="text-xs text-muted-foreground">
                 Select items from dropdown, set pack quantities, and batch-add all lines in one click
               </p>
             </div>
@@ -382,7 +579,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                   { productId: PRODUCTS[0].id, quantity: 5 }
                 ])
               }
-              className="px-3 py-1.5 rounded-lg bg-forest-50 text-forest-900 hover:bg-forest-100 font-semibold text-xs flex items-center gap-1.5 border border-forest-200"
+              className="px-3 py-1.5 rounded-xl bg-brand-soft text-primary hover:bg-brand-soft/80 font-semibold text-xs flex items-center gap-1.5 border border-primary/20 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add SKU Row</span>
@@ -391,7 +588,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-warm-50 border-b border-warm-200 text-warm-600 uppercase font-semibold text-[11px]">
+              <thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Commodity / SKU</th>
                   <th className="py-3 px-4">Pack Unit</th>
@@ -401,7 +598,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                   <th className="py-3 px-4 text-right">Remove</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-warm-100">
+              <tbody className="divide-y divide-border">
                 {gridRows.map((row, idx) => {
                   const product = PRODUCTS.find(p => p.id === row.productId) || PRODUCTS[0];
                   const activeTier = product.bulkTiers
@@ -411,7 +608,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                   const lineTotal = unitPrice * row.quantity;
 
                   return (
-                    <tr key={idx} className="hover:bg-warm-50/40">
+                    <tr key={idx} className="hover:bg-muted/30 transition-colors">
                       <td className="py-2.5 px-4">
                         <select
                           value={row.productId}
@@ -423,17 +620,17 @@ export const AssistedPurchaseListSection: React.FC = () => {
                               return updated;
                             });
                           }}
-                          className="w-full max-w-sm px-2.5 py-1.5 bg-white border border-warm-200 rounded-lg text-xs font-semibold text-warm-900 cursor-pointer"
+                          className="w-full max-w-sm px-2.5 py-1.5 bg-card border border-input rounded-lg text-xs font-semibold text-foreground cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-primary"
                         >
                           {PRODUCTS.map(p => (
                             <option key={p.id} value={p.id}>
-                              {p.name} ({p.unit})
+                              {p.name} ({p.unit}) • {p.merchantName}
                             </option>
                           ))}
                         </select>
                       </td>
 
-                      <td className="py-2.5 px-4 font-semibold text-warm-700">
+                      <td className="py-2.5 px-4 font-semibold text-foreground">
                         {product.unit}
                       </td>
 
@@ -450,22 +647,22 @@ export const AssistedPurchaseListSection: React.FC = () => {
                               return updated;
                             });
                           }}
-                          className="w-20 px-2 py-1 bg-warm-50 border border-warm-200 rounded-lg font-mono font-bold text-center text-warm-900"
+                          className="w-20 px-2 py-1 bg-card border border-input rounded-lg font-mono font-bold text-center text-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
                         />
                       </td>
 
                       <td className="py-2.5 px-4">
-                        <div className="font-mono font-bold text-forest-900">
+                        <div className="font-mono font-bold text-primary">
                           ₹{unitPrice}
                         </div>
                         {activeTier && (
-                          <span className="text-[10px] text-emerald-700 font-bold">
+                          <span className="text-[10px] text-primary font-bold">
                             Save {activeTier.discountPercent}%
                           </span>
                         )}
                       </td>
 
-                      <td className="py-2.5 px-4 font-mono font-bold text-warm-900 text-sm">
+                      <td className="py-2.5 px-4 font-mono font-bold text-foreground text-sm">
                         ₹{lineTotal}
                       </td>
 
@@ -473,7 +670,7 @@ export const AssistedPurchaseListSection: React.FC = () => {
                         <button
                           onClick={() => setGridRows(prev => prev.filter((_, i) => i !== idx))}
                           disabled={gridRows.length <= 1}
-                          className="p-1 text-warm-400 hover:text-rose-600 disabled:opacity-30"
+                          className="p-1 text-muted-foreground hover:text-destructive disabled:opacity-30 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -485,8 +682,8 @@ export const AssistedPurchaseListSection: React.FC = () => {
             </table>
           </div>
 
-          <div className="pt-3 border-t border-warm-200 flex items-center justify-between">
-            <span className="text-xs text-warm-500">
+          <div className="pt-3 border-t border-border flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">
               {gridRows.length} rows configured
             </span>
             <Button
@@ -502,43 +699,55 @@ export const AssistedPurchaseListSection: React.FC = () => {
         </div>
       )}
 
-      {/* Mode 3: CSV Template Upload */}
+      {/* Mode 3: Real CSV File Reader */}
       {inputMode === 'csv' && (
-        <div className="bg-white rounded-3xl border border-warm-200 shadow-soft p-6 sm:p-10 text-center space-y-6 max-w-2xl mx-auto">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-900 flex items-center justify-center mx-auto">
+        <div className="bg-card rounded-2xl border border-border shadow-card p-6 sm:p-10 text-center space-y-6 max-w-2xl mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-brand-soft text-primary flex items-center justify-center mx-auto border border-primary/20">
             <FileSpreadsheet className="w-8 h-8" />
           </div>
 
           <div className="space-y-1">
-            <h4 className="font-bold text-base text-warm-900">
-              Bulk CSV Order Template
+            <h4 className="font-bold text-base text-foreground">
+              Real CSV Order File Processing
             </h4>
-            <p className="text-xs text-warm-500 max-w-md mx-auto">
-              Download our pre-structured Excel / CSV template, fill in SKU quantities, and re-upload to automatically populate your cart.
+            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+              Upload your structured .csv file (with Commodity, Quantity, Unit). The file is parsed in your browser and matched against verified catalogue items.
             </p>
           </div>
 
+          {/* Hidden real file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleCsvFileUpload}
+            className="hidden"
+          />
+
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => showToast('📥 Downloaded nationx_b2b_template.csv')}
-              className="px-4 py-2 rounded-xl border border-warm-300 hover:border-warm-400 bg-warm-50 hover:bg-white text-xs font-semibold text-warm-800 flex items-center gap-2 transition-colors"
+              onClick={handleDownloadCsvTemplate}
+              className="px-4 py-2 rounded-xl border border-border hover:border-primary/40 bg-card hover:bg-muted/40 text-xs font-semibold text-foreground flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <Download className="w-4 h-4 text-forest-700" />
-              <span>Download CSV Template</span>
+              <Download className="w-4 h-4 text-primary" />
+              <span>Download Official CSV Template</span>
             </button>
 
             <button
-              onClick={() => {
-                showToast('📤 Simulated CSV uploaded: 4 items imported into cart!');
-                parseList(PRESET_LISTS[0].text);
-                setInputMode('text');
-              }}
-              className="px-4 py-2 rounded-xl bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold flex items-center gap-2 shadow-card transition-colors cursor-pointer"
             >
-              <Upload className="w-4 h-4 text-emerald-300" />
-              <span>Upload Completed CSV</span>
+              <Upload className="w-4 h-4 text-primary-foreground/90" />
+              <span>{csvFileName ? `Replace ${csvFileName}` : 'Choose CSV File to Upload'}</span>
             </button>
           </div>
+
+          {csvFileName && (
+            <div className="text-xs text-primary font-semibold flex items-center justify-center gap-1.5 bg-brand-soft border border-primary/20 py-1.5 px-3 rounded-xl max-w-fit mx-auto">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Loaded: {csvFileName}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

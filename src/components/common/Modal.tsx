@@ -43,23 +43,23 @@ export const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-warm-950/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-foreground/40 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
-        className={`relative w-full ${maxWidthClass} bg-white rounded-2xl shadow-soft-lg border border-warm-200 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
+        className={`relative w-full ${maxWidthClass} bg-card rounded-2xl shadow-card border border-border overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150`}
       >
         {(title || subtitle) && (
-          <div className="flex items-start justify-between px-6 py-4.5 border-b border-warm-100 bg-warm-50/50">
+          <div className="flex items-start justify-between px-6 py-4.5 border-b border-border bg-muted/40">
             <div>
-              {title && <h3 className="text-lg font-bold text-warm-900">{title}</h3>}
-              {subtitle && <p className="text-xs text-warm-500 mt-0.5">{subtitle}</p>}
+              {title && <h3 className="text-lg font-heading font-bold text-foreground">{title}</h3>}
+              {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-warm-400 hover:text-warm-700 hover:bg-warm-100 transition-colors"
+              className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -70,4 +70,3 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
-
