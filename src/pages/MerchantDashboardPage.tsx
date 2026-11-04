@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMerchant } from '../context/MerchantContext';
 import { useCart } from '../context/CartContext';
+import { PRODUCTS } from '../data/products';
 import { MetricsBar } from '../components/merchant/MetricsBar';
 import { ProductManagementTable } from '../components/merchant/ProductManagementTable';
 import { InventoryTable } from '../components/merchant/InventoryTable';
@@ -30,42 +31,73 @@ export const MerchantDashboardPage: React.FC = () => {
 
   const handleSimulateIncomingOrder = () => {
     const id = `NX-LIVE-${Math.floor(1000 + Math.random() * 9000)}`;
+    const subOrderId = `NX-SO-${id.replace('NX-LIVE-', '')}-1`;
+    const itemProduct = PRODUCTS[0];
+
+    const subOrder = {
+      id: subOrderId,
+      parentOrderId: id,
+      merchantId: currentStore.id,
+      merchantName: currentStore.name,
+      items: [
+        {
+          offeringId: itemProduct.offeringId || 'off-sharma-atta',
+          masterProductId: itemProduct.id,
+          productName: itemProduct.name,
+          packSize: itemProduct.packSize,
+          quantity: 2,
+          unitPrice: 345,
+          mrp: 385,
+          totalPrice: 690,
+          mode: 'retail' as const,
+          image: itemProduct.image,
+          isAvailable: true,
+          substitutionStatus: 'original' as const
+        }
+      ],
+      subtotal: 690,
+      originalSubtotal: 770,
+      savings: 80,
+      deliveryFee: 0,
+      status: 'placed' as const,
+      fulfilmentType: 'express' as const,
+      estimatedDelivery: 'In 20 mins',
+      timeline: [
+        {
+          timestamp: 'Just now',
+          status: 'placed' as const,
+          actor: 'Customer Simulated Order',
+          note: `Incoming retail express order for 2x ${itemProduct.name}`
+        }
+      ]
+    };
+
     addNewOrder({
       id,
       date: 'Just Now',
+      createdAt: new Date().toISOString(),
       items: [
         {
-          product: {
-            id: 'prod-aashirvaad-sharbati',
-            name: 'Aashirvaad Select 100% MP Sharbati Whole Wheat Atta',
-            hindiName: 'आशीर्वाद सेलेक्ट शरबती गेहूं आटा',
-            brand: 'Aashirvaad',
-            category: 'staples-atta',
-            subCategory: 'Atta',
-            unit: '5 kg',
-            packSize: '5 kg bag',
-            retailPrice: 345,
-            originalPrice: 385,
-            image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
-            rating: 4.8,
-            reviewCount: 1420,
-            inStock: true,
-            stockQuantity: 48,
-            origin: 'Sehore, MP',
-            description: 'Sharbati atta.',
-            tags: ['Sharbati'],
-            merchantId: currentStore.id,
-            merchantName: currentStore.name
-          },
+          offeringId: itemProduct.offeringId || 'off-sharma-atta',
+          masterProductId: itemProduct.id,
+          product: itemProduct,
+          merchantId: currentStore.id,
+          merchantName: currentStore.name,
           quantity: 2,
           mode: 'retail',
           unitPrice: 345,
-          totalPrice: 690
+          mrp: 385,
+          totalPrice: 690,
+          availabilityStatus: 'available',
+          stockUpdatedAt: new Date().toISOString()
         }
       ],
       totalAmount: 690,
       originalAmount: 770,
       savings: 80,
+      deliveryFee: 0,
+      taxAmount: 35,
+      finalPayable: 690,
       orderType: 'retail',
       status: 'placed',
       storeId: currentStore.id,
@@ -80,11 +112,13 @@ export const MerchantDashboardPage: React.FC = () => {
         addressType: 'home'
       },
       paymentMethod: 'UPI (PhonePe)',
-      paymentStatus: 'paid',
-      estimatedDelivery: 'In 20 mins'
+      paymentStatus: 'authorized',
+      paymentReference: `PAY-NX-${Math.floor(100000 + Math.random() * 900000)}`,
+      estimatedDelivery: 'In 20 mins',
+      subOrders: [subOrder]
     });
 
-    showToast(`Ding! New incoming order #${id} received in pipeline!`);
+    showToast(`Ding! New incoming suborder #${subOrderId} received for ${currentStore.name}!`);
   };
 
   const pendingOrdersCount = orders.filter(o => o.status !== 'delivered').length;

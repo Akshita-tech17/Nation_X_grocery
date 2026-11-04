@@ -31,6 +31,7 @@ export const ProductManagementTable: React.FC = () => {
   const [packSize, setPackSize] = useState('1 kg pack');
   const [retailPrice, setRetailPrice] = useState<number>(100);
   const [originalPrice, setOriginalPrice] = useState<number>(120);
+  const [purchaseCost, setPurchaseCost] = useState<number>(85);
   const [stockQuantity, setStockQuantity] = useState<number>(50);
   const [origin, setOrigin] = useState('India');
   const [image, setImage] = useState('');
@@ -54,6 +55,7 @@ export const ProductManagementTable: React.FC = () => {
     setPackSize('1 kg pack');
     setRetailPrice(150);
     setOriginalPrice(180);
+    setPurchaseCost(125);
     setStockQuantity(40);
     setOrigin('Madhya Pradesh, India');
     setImage('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80');
@@ -71,6 +73,7 @@ export const ProductManagementTable: React.FC = () => {
     setPackSize(p.packSize || p.unit);
     setRetailPrice(p.retailPrice);
     setOriginalPrice(p.originalPrice);
+    setPurchaseCost(p.purchaseCost || Math.round(p.retailPrice * 0.8));
     setStockQuantity(p.stockQuantity);
     setOrigin(p.origin);
     setImage(p.image);
@@ -85,6 +88,9 @@ export const ProductManagementTable: React.FC = () => {
       return;
     }
 
+    const inStock = Number(stockQuantity) > 0;
+    const availabilityStatus = !inStock ? 'unavailable' : Number(stockQuantity) < 10 ? 'low_stock' : 'available';
+
     if (editingProduct) {
       editProduct(editingProduct.id, {
         name,
@@ -95,8 +101,11 @@ export const ProductManagementTable: React.FC = () => {
         packSize,
         retailPrice: Number(retailPrice),
         originalPrice: Number(originalPrice),
+        purchaseCost: Number(purchaseCost),
         stockQuantity: Number(stockQuantity),
-        inStock: Number(stockQuantity) > 0,
+        inStock,
+        availabilityStatus,
+        stockUpdatedAt: new Date().toISOString(),
         origin,
         image,
         description
@@ -114,11 +123,14 @@ export const ProductManagementTable: React.FC = () => {
         packSize,
         retailPrice: Number(retailPrice),
         originalPrice: Number(originalPrice),
+        purchaseCost: Number(purchaseCost),
         image,
         rating: 4.8,
         reviewCount: 1,
-        inStock: Number(stockQuantity) > 0,
+        inStock,
         stockQuantity: Number(stockQuantity),
+        availabilityStatus,
+        stockUpdatedAt: new Date().toISOString(),
         origin,
         description,
         tags: [brand],
@@ -181,8 +193,9 @@ export const ProductManagementTable: React.FC = () => {
                 <th className="py-3.5 px-4">Category</th>
                 <th className="py-3.5 px-4">Pack Unit</th>
                 <th className="py-3.5 px-4">Selling Price</th>
+                <th className="py-3.5 px-4">Purchase Cost (Protected)</th>
                 <th className="py-3.5 px-4">MRP (₹)</th>
-                <th className="py-3.5 px-4">Stock Units</th>
+                <th className="py-3.5 px-4">Availability</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -219,6 +232,10 @@ export const ProductManagementTable: React.FC = () => {
 
                   <td className="py-3 px-4 font-bold text-forest-950 font-mono">
                     ₹{p.retailPrice}
+                  </td>
+
+                  <td className="py-3 px-4 font-semibold text-stone-600 font-mono bg-stone-50/80">
+                    ₹{p.purchaseCost || Math.round(p.retailPrice * 0.8)}
                   </td>
 
                   <td className="py-3 px-4 text-stone-400 line-through font-mono">
@@ -366,6 +383,18 @@ export const ProductManagementTable: React.FC = () => {
                 value={originalPrice}
                 onChange={e => setOriginalPrice(Number(e.target.value))}
                 className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-mono focus:outline-none focus:ring-1 focus:ring-forest-600"
+              />
+            </div>
+
+            <div>
+              <label className="font-semibold text-stone-700 block mb-1">Purchase Cost (Protected Merchant-Only) *</label>
+              <input
+                type="number"
+                required
+                min="1"
+                value={purchaseCost}
+                onChange={e => setPurchaseCost(Number(e.target.value))}
+                className="w-full px-3 py-2 bg-amber-50/50 border border-amber-200 rounded-xl text-stone-900 font-mono focus:outline-none focus:ring-1 focus:ring-amber-600"
               />
             </div>
 

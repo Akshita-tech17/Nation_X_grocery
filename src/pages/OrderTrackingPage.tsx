@@ -2,25 +2,24 @@ import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useMerchant } from '../context/MerchantContext';
 import { useCart } from '../context/CartContext';
-import { Order } from '../types';
+import { ParentOrder, OrderStatus, SubstitutionProposal } from '../types';
 import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import {
   CheckCircle2,
   Clock,
-  Bike,
   Store,
-  MapPin,
-  Phone,
   FileText,
-  ShieldCheck,
   RefreshCw,
   ShoppingBag,
-  ArrowLeft
+  ArrowLeft,
+  AlertTriangle,
+  Check,
+  X
 } from 'lucide-react';
 
 const STATUS_STAGES: Array<{
-  key: Order['status'];
+  key: OrderStatus;
   label: string;
   description: string;
   etaNote: string;
@@ -44,6 +43,12 @@ const STATUS_STAGES: Array<{
     etaNote: 'Rider assigned for pickup'
   },
   {
+    key: 'ready_for_pickup',
+    label: 'Ready for Pickup',
+    description: 'Bags sealed and staged for delivery partner handover',
+    etaNote: 'Rider reaching storefront'
+  },
+  {
     key: 'out_for_delivery',
     label: 'Out for Delivery',
     description: 'Delivery partner on the way with insulated grocery kit',
@@ -61,7 +66,7 @@ export const OrderTrackingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const requestedId = searchParams.get('id');
 
-  const { orders, advanceOrderStatus } = useMerchant();
+  const { orders, advanceOrderStatus, customerRespondSubstitution } = useMerchant();
   const { showToast, addToCart } = useCart();
 
   // Selected order state: defaults to requestedId from query, or the newest active order
@@ -75,7 +80,7 @@ export const OrderTrackingPage: React.FC = () => {
     ? STATUS_STAGES.findIndex(s => s.key === activeOrder.status)
     : 0;
 
-  const handleReorder = (order: Order) => {
+  const handleReorder = (order: ParentOrder) => {
     order.items.forEach(item => {
       addToCart(item.product, item.quantity, item.mode);
     });
@@ -109,6 +114,16 @@ export const OrderTrackingPage: React.FC = () => {
     );
   }
 
+  // Find any pending substitution proposals across all suborders
+  const pendingSubstitutions: Array<{ subOrderId: string; proposal: SubstitutionProposal; merchantName: string }> = [];
+  activeOrder.subOrders?.forEach(so => {
+    so.substitutionsProposed?.forEach(p => {
+      if (p.status === 'pending_customer_approval') {
+        pendingSubstitutions.push({ subOrderId: so.id, proposal: p, merchantName: so.merchantName });
+      }
+    });
+  });
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
       {/* Header & Breadcrumb */}
@@ -125,7 +140,7 @@ export const OrderTrackingPage: React.FC = () => {
             Order Tracking & Delivery Status
           </h1>
           <p className="text-xs sm:text-sm text-stone-600 mt-1">
-            Track real-time dispatch, kirana packing verification, and delivery transit.
+            Track real-time dispatch, coordinated merchant preparation, and proof of delivery.
           </p>
         </div>
 
@@ -148,26 +163,86 @@ export const OrderTrackingPage: React.FC = () => {
         )}
       </div>
 
+      {/* Pending Substitution Alert Banner for Customer Approval */}
+      {pendingSubstitutions.length > 0 && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 shadow-xs space-y-3">
+          <div className="flex items-center gap-2 font-bold text-amber-950 text-sm">
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0" />
+            <span>Material Change / Substitution Proposed by Merchant</span>
+          </div>
+
+          <div className="space-y-3">
+            {pendingSubstitutions.map(({ subOrderId, proposal, merchantName }) => (
+              <div
+                key={proposal.id}
+                className="p-3.5 rounded-xl bg-white border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              >
+                <div>
+                  <div className="font-semibold text-stone-800">
+                    <strong>{merchantName}</strong> proposes replacing:
+                  </div>
+                  <div className="text-stone-600 mt-0.5">
+                    Original: <strong className="line-through text-stone-400">{proposal.originalQuantity}x {proposal.originalProductName} (₹{proposal.originalPrice})</strong>
+                    {' ➔ '}
+                    Substitute: <strong className="text-forest-900">{proposal.substituteQuantity}x {proposal.substituteProductName} (₹{proposal.substitutePrice})</strong>
+                  </div>
+                  <div className="text-[11px] text-amber-800 mt-0.5">
+                    <strong>Reason:</strong> {proposal.reason}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      customerRespondSubstitution(subOrderId, proposal.id, true);
+                      showToast(`Approved substitution for ${proposal.substituteProductName}`);
+                    }}
+                    icon={<Check className="w-3.5 h-3.5" />}
+                  >
+                    Approve Change
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      customerRespondSubstitution(subOrderId, proposal.id, false);
+                      showToast(`Rejected substitution`);
+                    }}
+                    icon={<X className="w-3.5 h-3.5" />}
+                  >
+                    Reject Change
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Main Grid: Left Timeline & Live Dispatch Card, Right Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Progress Timeline & Live Status */}
         <div className="lg:col-span-7 space-y-6">
           {/* Status Highlight Banner */}
-          <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 space-y-5">
+          <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold text-base text-stone-900">
-                    Order #{activeOrder.id}
+                    Parent Order #{activeOrder.id}
                   </span>
                   {activeOrder.orderType === 'wholesale' ? (
                     <Badge variant="blue" size="sm">B2B Wholesale Mini-Truck</Badge>
+                  ) : activeOrder.orderType === 'mixed' ? (
+                    <Badge variant="purple" size="sm">Multi-Shop Combined</Badge>
                   ) : (
                     <Badge variant="forest" size="sm">Retail Express Kirana</Badge>
                   )}
                 </div>
                 <div className="text-xs text-stone-500 mt-0.5">
-                  Placed on {activeOrder.date} • Paid via {activeOrder.paymentMethod}
+                  Placed on {activeOrder.date} • Reference: {activeOrder.paymentReference || 'N/A'} • {activeOrder.paymentMethod}
                 </div>
               </div>
 
@@ -185,7 +260,7 @@ export const OrderTrackingPage: React.FC = () => {
             </div>
 
             {/* Estimated Arrival Badge */}
-            <div className="p-4 rounded-xl bg-forest-900 text-white flex items-center justify-between">
+            <div className="p-4 rounded-2xl bg-forest-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-xl bg-emerald-600/30 text-emerald-300">
                   <Clock className="w-5 h-5" />
@@ -202,7 +277,7 @@ export const OrderTrackingPage: React.FC = () => {
 
               <div className="text-right">
                 <span className="text-[11px] font-mono text-emerald-200 uppercase tracking-wider block">
-                  Delivery Code
+                  Delivery Code (OTP)
                 </span>
                 <span className="font-mono font-extrabold text-base text-white tracking-widest">
                   8492
@@ -213,7 +288,7 @@ export const OrderTrackingPage: React.FC = () => {
             {/* Step Timeline */}
             <div className="space-y-6 pt-2">
               <div className="text-xs font-bold text-stone-800 uppercase tracking-wider">
-                Fulfillment Milestones
+                Overall Order Milestone
               </div>
 
               <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-stone-200">
@@ -268,77 +343,53 @@ export const OrderTrackingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Local Partner Details Card */}
-          <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-5 space-y-4">
+          {/* Suborders Breakdown for Multi-Merchant Fulfillment */}
+          <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-4">
             <h3 className="font-bold text-stone-900 text-sm flex items-center gap-2">
               <Store className="w-4 h-4 text-forest-700" />
-              <span>Assigned Merchant & Dispatch Agent</span>
+              <span>Independent Merchant Suborders ({activeOrder.subOrders?.length || 1})</span>
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              {/* Kirana Merchant */}
-              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wide">Fulfilling Kirana</span>
-                  <Badge variant="forest" size="sm">Verified</Badge>
-                </div>
-                <div className="font-bold text-stone-900 text-sm">
-                  {activeOrder.storeName}
-                </div>
-                <div className="text-stone-600 flex items-start gap-1.5 text-[11px]">
-                  <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0 mt-0.5" />
-                  <span>Doorstep dispatch from local hub, 500m radius</span>
-                </div>
-                <div className="pt-1 flex items-center justify-between">
-                  <span className="text-stone-500 text-[11px]">Helpline:</span>
-                  <a
-                    href="tel:+919845012345"
-                    className="font-semibold text-forest-800 hover:underline flex items-center gap-1"
-                  >
-                    <Phone className="w-3 h-3" /> +91 98450 12345
-                  </a>
-                </div>
-              </div>
+            <div className="space-y-3">
+              {(activeOrder.subOrders || []).map(so => (
+                <div key={so.id} className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-stone-900">{so.merchantName}</span>
+                      <span className="font-mono text-[11px] text-stone-500">#{so.id}</span>
+                    </div>
+                    <Badge variant="forest" size="sm">
+                      {so.status.toUpperCase()}
+                    </Badge>
+                  </div>
 
-              {/* Delivery Rider */}
-              <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200/70 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wide">Rider / Partner</span>
-                  <span className="text-[11px] font-bold text-emerald-800">4.9 ★ (840 trips)</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-forest-100 text-forest-900 font-bold flex items-center justify-center shrink-0">
-                    <Bike className="w-5 h-5 text-forest-700" />
+                  <div className="text-xs text-stone-600">
+                    {so.items.map(it => `${it.quantity}x ${it.productName}`).join(', ')}
                   </div>
-                  <div>
-                    <div className="font-bold text-stone-900">Ramesh K.</div>
-                    <div className="text-[11px] text-stone-500">Electric Two-Wheeler • KA-03-EK-9102</div>
+
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 pt-1 border-t border-stone-200/60">
+                    <span>Dispatch: <strong className="capitalize">{so.fulfilmentType}</strong></span>
+                    <span>Subtotal: <strong className="text-stone-900 font-mono">₹{so.subtotal}</strong></span>
                   </div>
                 </div>
-                <div className="pt-1 flex items-center justify-between">
-                  <span className="text-stone-500 text-[11px]">Safety:</span>
-                  <span className="text-emerald-700 font-semibold text-[11px] flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Temperature Screened
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Right Column: Ordered Items & Bill Summary */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm p-6 space-y-5">
+          <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 space-y-5">
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <h3 className="font-bold text-stone-900 text-sm">
-                Items in This Order ({activeOrder.items.length})
+                Consolidated Items ({activeOrder.items.length})
               </h3>
               <button
                 onClick={() => showToast('Demo Invoice PDF generated and sent to email.')}
                 className="text-xs font-semibold text-forest-700 hover:text-forest-900 flex items-center gap-1 hover:underline"
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>Invoice</span>
+                <span>GST Invoice</span>
               </button>
             </div>
 
@@ -356,7 +407,7 @@ export const OrderTrackingPage: React.FC = () => {
                       {item.product.name}
                     </div>
                     <div className="text-[11px] text-stone-500">
-                      {item.product.brand} • {item.product.packSize || item.product.unit}
+                      {item.merchantName} • {item.product.packSize || item.product.unit}
                     </div>
                     <div className="text-[11px] text-stone-600 mt-0.5">
                       Qty: <strong className="text-stone-900">{item.quantity}</strong> × ₹{item.unitPrice}
@@ -373,12 +424,12 @@ export const OrderTrackingPage: React.FC = () => {
             <div className="border-t border-stone-100 pt-4 space-y-2 text-xs">
               <div className="flex justify-between text-stone-600">
                 <span>Items Subtotal</span>
-                <span className="font-mono">₹{activeOrder.totalAmount - (activeOrder.totalAmount >= 499 ? 0 : 39)}</span>
+                <span className="font-mono">₹{activeOrder.totalAmount - (activeOrder.deliveryFee || 0)}</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Doorstep Handling & Delivery</span>
                 <span className="text-emerald-700 font-semibold font-mono">
-                  {activeOrder.totalAmount >= 499 ? 'FREE' : '₹39'}
+                  {(activeOrder.deliveryFee || 0) === 0 ? 'FREE' : `₹${activeOrder.deliveryFee}`}
                 </span>
               </div>
               {activeOrder.savings > 0 && (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { PRODUCTS } from '../data/products';
 import { MERCHANTS } from '../data/merchants';
+import { ProductService } from '../services/productService';
 import { useCart } from '../context/CartContext';
 import { useStore } from '../context/StoreContext';
 import { Button } from '../components/common/Button';
@@ -27,6 +28,10 @@ export const ProductDetailPage: React.FC = () => {
 
   const product = PRODUCTS.find(p => p.id === id) || PRODUCTS[0];
   const merchant = MERCHANTS.find(m => m.id === product.merchantId) || MERCHANTS[0];
+
+  const masterProductId = product.masterProductId || product.id;
+  const otherOfferings = ProductService.getOfferingsForMasterProduct(masterProductId)
+    .filter(o => o.merchantId !== product.merchantId);
 
   const [quantity, setQuantity] = useState(1);
   const [purchaseMode, setPurchaseMode] = useState<'retail' | 'wholesale'>('retail');
@@ -369,6 +374,77 @@ export const ProductDetailPage: React.FC = () => {
           </Button>
         </Link>
       </div>
+
+      {/* Other Stores Offering This Same Product */}
+      {otherOfferings.length > 0 && (
+        <div className="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-stone-900">
+                Available at Other Local Stores
+              </h3>
+              <p className="text-xs text-stone-500">
+                Independent pricing and stock for the same master item across local kiranas
+              </p>
+            </div>
+            <Badge variant="amber" size="sm">
+              {otherOfferings.length} Other {otherOfferings.length === 1 ? 'Store' : 'Stores'}
+            </Badge>
+          </div>
+
+          <div className="divide-y divide-stone-100 border border-stone-100 rounded-2xl overflow-hidden">
+            {otherOfferings.map(offering => {
+              const offMerchant = MERCHANTS.find(m => m.id === offering.merchantId);
+              const offProduct = PRODUCTS.find(p => p.offeringId === offering.id || p.id === offering.id);
+              return (
+                <div key={offering.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/60 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center font-bold text-stone-700 text-sm">
+                      <Store className="w-5 h-5 text-forest-800" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-stone-900">{offering.merchantName}</span>
+                        {offering.availabilityStatus === 'low_stock' && (
+                          <Badge variant="amber" size="sm">Low Stock</Badge>
+                        )}
+                        {offering.availabilityStatus === 'unconfirmed' && (
+                          <Badge variant="stone" size="sm">Call to confirm</Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-stone-500">
+                        {offMerchant?.deliveryTime || '25-35 mins'} • Stock: {offering.stockQuantity} units available
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-4">
+                    <div className="text-right">
+                      <div className="text-base font-bold font-mono text-stone-950">₹{offering.sellingPrice}</div>
+                      <div className="text-xs text-stone-400 line-through">MRP ₹{offering.mrp}</div>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (offProduct) {
+                          addToCart(offProduct, 1, 'retail');
+                          showToast(`Added from ${offering.merchantName} to cart!`);
+                        } else {
+                          navigate(`/browse?store=${offering.merchantId}`);
+                        }
+                      }}
+                    >
+                      Buy from {offering.merchantName.split(' ')[0]}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

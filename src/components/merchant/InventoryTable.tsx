@@ -4,7 +4,7 @@ import { Product, BulkTier } from '../../types';
 import { Badge } from '../common/Badge';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
-import { Check, Edit2, AlertCircle, Search, ToggleLeft, ToggleRight, Layers } from 'lucide-react';
+import { Check, Edit2, AlertCircle, Search, ToggleLeft, ToggleRight, Layers, Clock } from 'lucide-react';
 
 export const InventoryTable: React.FC = () => {
   const { products, toggleStockStatus, updateProductStock, updateProductPrice, editProduct } = useMerchant();
@@ -61,7 +61,7 @@ export const InventoryTable: React.FC = () => {
         <div>
           <h3 className="font-bold text-stone-900 text-base">Inventory & Wholesale Slabs Manager</h3>
           <p className="text-xs text-stone-500">
-            Real-time stock quantities, instant in/out of stock toggles, and multi-tier wholesale discounts
+            Real-time stock quantities, explicit availability status, freshness metadata, and multi-tier wholesale discounts
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export const InventoryTable: React.FC = () => {
                 <th className="py-3.5 px-4">Stock Units</th>
                 <th className="py-3.5 px-4">Retail Price (₹)</th>
                 <th className="py-3.5 px-4">Wholesale Slabs</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-4 text-center">Availability Status</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -109,8 +109,16 @@ export const InventoryTable: React.FC = () => {
                           <div className="font-bold text-stone-900 truncate max-w-xs">
                             {product.name}
                           </div>
-                          <div className="text-[11px] text-stone-500">
-                            {product.brand} • <span className="text-forest-700">{product.origin}</span>
+                          <div className="text-[11px] text-stone-500 flex items-center gap-1.5">
+                            <span>{product.brand}</span>
+                            <span>•</span>
+                            <span className="text-forest-700">{product.origin}</span>
+                            {product.stockUpdatedAt && (
+                              <span className="text-stone-400 flex items-center gap-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                Updated {new Date(product.stockUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -189,10 +197,14 @@ export const InventoryTable: React.FC = () => {
 
                     {/* Status Badge */}
                     <td className="py-3 px-4 text-center">
-                      {product.inStock && product.stockQuantity > 0 ? (
-                        <Badge variant="forest" size="sm">In Stock</Badge>
+                      {product.availabilityStatus === 'available' || (product.inStock && product.stockQuantity >= 10) ? (
+                        <Badge variant="forest" size="sm">Available</Badge>
+                      ) : product.availabilityStatus === 'low_stock' || (product.stockQuantity > 0 && product.stockQuantity < 10) ? (
+                        <Badge variant="amber" size="sm">Low Stock</Badge>
+                      ) : product.availabilityStatus === 'unconfirmed' ? (
+                        <Badge variant="stone" size="sm">Call to Confirm</Badge>
                       ) : (
-                        <Badge variant="rose" size="sm">Out of Stock</Badge>
+                        <Badge variant="rose" size="sm">Unavailable</Badge>
                       )}
                     </td>
 
@@ -200,21 +212,21 @@ export const InventoryTable: React.FC = () => {
                     <td className="py-3 px-4 text-right">
                       <button
                         onClick={() => toggleStockStatus(product.id)}
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all inline-flex items-center gap-1.5 ${
-                          product.inStock && product.stockQuantity > 0
-                            ? 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100'
-                            : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold transition-colors ${
+                          product.inStock
+                            ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                            : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
                         }`}
                       >
-                        {product.inStock && product.stockQuantity > 0 ? (
+                        {product.inStock ? (
                           <>
-                            <ToggleRight className="w-4 h-4 text-rose-600" />
-                            <span>Mark Out</span>
+                            <ToggleRight className="w-4 h-4 text-emerald-600" />
+                            <span>In Stock</span>
                           </>
                         ) : (
                           <>
-                            <ToggleLeft className="w-4 h-4 text-emerald-600" />
-                            <span>Restock</span>
+                            <ToggleLeft className="w-4 h-4 text-rose-600" />
+                            <span>Out of Stock</span>
                           </>
                         )}
                       </button>
@@ -227,62 +239,74 @@ export const InventoryTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Wholesale Slabs Modal */}
-      {tierModalProduct && (
-        <Modal
-          isOpen={!!tierModalProduct}
-          onClose={() => setTierModalProduct(null)}
-          title={`Wholesale Slabs • ${tierModalProduct.name}`}
-          subtitle="Configure volume discount break-points for B2B buyers & caterers"
-          maxWidth="md"
-        >
-          <div className="space-y-4 text-xs">
-            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-              <div className="text-stone-600">Base Retail Price: <strong className="text-stone-900 font-mono">₹{tierModalProduct.retailPrice}</strong> per {tierModalProduct.packSize || tierModalProduct.unit}</div>
-            </div>
+      {/* Slabs Configuration Modal */}
+      <Modal
+        isOpen={!!tierModalProduct}
+        onClose={() => setTierModalProduct(null)}
+        title={`Configure Wholesale Slabs • ${tierModalProduct?.name}`}
+        subtitle="Set minimum unit breaks and discounted per-unit pricing for commercial buyers"
+        maxWidth="md"
+      >
+        <div className="space-y-4 text-xs">
+          <p className="text-stone-600">
+            Discounts automatically apply in B2B Direct Bulk Ordering (Path 7.1) when buyers select quantities exceeding tier thresholds.
+          </p>
 
-            <div className="space-y-3">
-              {tiers.map((tier, idx) => (
-                <div key={idx} className="p-3 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
-                  <div>
-                    <span className="font-bold text-stone-900">Tier {idx + 1} Slabs</span>
-                    <div className="text-stone-500 text-[11px]">Min Order: {tier.minQty}+ units</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-stone-500">Price/unit:</span>
-                    <input
-                      type="number"
-                      value={tier.pricePerUnit}
-                      onChange={e => {
-                        const nextVal = Number(e.target.value);
-                        setTiers(prev => {
-                          const updated = [...prev];
-                          const discount = Math.round(((tierModalProduct.retailPrice - nextVal) / tierModalProduct.retailPrice) * 100);
-                          updated[idx] = { ...updated[idx], pricePerUnit: nextVal, discountPercent: Math.max(0, discount) };
-                          return updated;
-                        });
-                      }}
-                      className="w-20 px-2 py-1 font-mono font-bold text-forest-950 bg-stone-50 border border-stone-200 rounded-lg text-center"
-                    />
-                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">
-                      {tier.discountPercent}% OFF
-                    </span>
+          <div className="space-y-3">
+            {tiers.map((tier, index) => (
+              <div key={index} className="p-3 rounded-xl bg-stone-50 border border-stone-200 grid grid-cols-3 gap-3 items-center">
+                <div>
+                  <label className="font-semibold text-stone-600 block mb-1">Min Qty ({tierModalProduct?.unit}s)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={tier.minQty}
+                    onChange={e => {
+                      const updated = [...tiers];
+                      updated[index].minQty = Number(e.target.value);
+                      setTiers(updated);
+                    }}
+                    className="w-full px-2.5 py-1.5 border border-stone-300 rounded-lg font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-stone-600 block mb-1">Price / Unit (₹)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={tier.pricePerUnit}
+                    onChange={e => {
+                      const updated = [...tiers];
+                      updated[index].pricePerUnit = Number(e.target.value);
+                      const mrp = tierModalProduct?.originalPrice || tierModalProduct?.retailPrice || 100;
+                      updated[index].discountPercent = Math.round(((mrp - updated[index].pricePerUnit) / mrp) * 100);
+                      setTiers(updated);
+                    }}
+                    className="w-full px-2.5 py-1.5 border border-stone-300 rounded-lg font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-stone-600 block mb-1">Discount %</label>
+                  <div className="font-mono font-bold text-emerald-700 py-1.5">
+                    {tier.discountPercent}% off
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
-              <Button variant="ghost" size="sm" onClick={() => setTierModalProduct(null)}>
-                Cancel
-              </Button>
-              <Button variant="primary" size="sm" onClick={handleSaveTiers}>
-                Save Wholesale Slabs
-              </Button>
-            </div>
+              </div>
+            ))}
           </div>
-        </Modal>
-      )}
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-stone-100">
+            <Button variant="ghost" size="sm" onClick={() => setTierModalProduct(null)}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleSaveTiers}>
+              Save Slabs Configuration
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
