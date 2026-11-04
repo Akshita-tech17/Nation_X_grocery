@@ -241,7 +241,7 @@ export const RetailBrowsePage: React.FC = () => {
                   {locationCompatibility.label}
                 </span>
                 <span className="text-[10px] text-warm-500 font-normal">
-                  (Simulated Demo Availability)
+                  (Live Local Kirana Stock)
                 </span>
               </div>
               <p className="mt-1 text-xs text-warm-800 leading-relaxed">

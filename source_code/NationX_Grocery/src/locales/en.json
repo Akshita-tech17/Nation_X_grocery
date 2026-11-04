@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "retail": "Retail Grocery",
+    "wholesale": "BulkBuy & Wholesale",
+    "stores": "Find Local Shops",
+    "compare": "Compare Prices",
+    "orders": "My Orders",
+    "merchant_portal": "Merchant Desk"
+  },
+  "search": {
+    "placeholder": "Search staples, dals, spices, flours across local shops...",
+    "no_results": "No products match your query in current serviceable radius."
+  },
+  "product": {
+    "add_to_cart": "Add to Basket",
+    "in_stock": "In Stock",
+    "low_stock": "Low Stock (Few Left)",
+    "out_of_stock": "Currently Unavailable",
+    "mrp": "MRP",
+    "our_price": "Our Price",
+    "save": "Save",
+    "pack": "Pack"
+  },
+  "cart": {
+    "title": "Shopping Basket",
+    "empty": "Your basket is empty. Browse local kirana stores to begin.",
+    "subtotal": "Item Total",
+    "delivery": "Delivery Fee",
+    "platform_fee": "Platform Handling Fee",
+    "total": "To Pay",
+    "checkout": "Proceed to Checkout",
+    "multi_shop_notice": "Your cart contains items from multiple merchants. Orders will be fulfilled by respective shops."
+  },
+  "bulkbuy": {
+    "path_a": "Direct Bulk Slabs",
+    "path_b": "Mandi Quotation RFP",
+    "path_c": "Assisted List Parser",
+    "tier_savings": "Volume Savings Applied"
+  },
+  "merchant": {
+    "accept": "Accept Suborder",
+    "reject": "Reject Suborder",
+    "ready_pickup": "Mark Ready for Pickup",
+    "hand_delivery": "Hand to Shared Delivery",
+    "inventory": "Authoritative Stock Ledger",
+    "pricing": "Shop Pricing & Wholesale Slabs"
+  }
+}

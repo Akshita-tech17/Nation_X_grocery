@@ -66,3 +66,4 @@ All features and system components are categorized according to strict engineeri
 - **Frontend**: React 19, TypeScript 5.7, Vite 8, Tailwind CSS, Lucide Icons
 - **State Management**: React Context (`CartContext`, `LocationContext`, `StoreContext`)
 - **Document Tooling**: Node.js, `pdfkit`, `docx`
+

@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Product, Order, Store, QuotationRequest } from '../types';
+import { Product, Order, Store, QuotationRequest, SubOrder } from '../types';
 import { PRODUCTS } from '../data/products';
 import { MERCHANTS } from '../data/merchants';
 import { INITIAL_ORDERS } from '../data/mockOrders';
+import { handoffToSharedDelivery } from '../services/integrationService';
+import { processRefund } from '../services/paymentService';
 
 const INITIAL_RFQS: QuotationRequest[] = [
   {
@@ -55,7 +57,10 @@ interface MerchantContextType {
   addProduct: (product: Product) => void;
   editProduct: (productId: string, updated: Partial<Product>) => void;
   deleteProduct: (productId: string) => void;
-  advanceOrderStatus: (orderId: string) => void;
+  acceptSubOrder: (orderId: string) => void;
+  rejectSubOrder: (orderId: string, reason: string) => void;
+  markReadyForPickup: (orderId: string) => void;
+  handOffToDelivery: (orderId: string) => void;
   addNewOrder: (order: Order) => void;
   addQuotationRequest: (rfq: QuotationRequest) => void;
   submitQuotationResponse: (rfqId: string, quoteAmount: number, notes: string) => void;
@@ -106,12 +111,20 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updateProductPrice = (productId: string, retailPrice: number) => {
     setProducts(prev =>
-      prev.map(p => (p.id === productId ? { ...p, retailPrice } : p))
+      prev.map(p => {
+        if (p.id === productId) {
+          return {
+            ...p,
+            retailPrice
+          };
+        }
+        return p;
+      })
     );
   };
 
-  const addProduct = (newProduct: Product) => {
-    setProducts(prev => [newProduct, ...prev]);
+  const addProduct = (product: Product) => {
+    setProducts(prev => [product, ...prev]);
   };
 
   const editProduct = (productId: string, updated: Partial<Product>) => {
@@ -124,17 +137,45 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
-  const advanceOrderStatus = (orderId: string) => {
-    const statusFlow: Order['status'][] = ['placed', 'confirmed', 'packing', 'out_for_delivery', 'delivered'];
+  // Spec §5.6 Merchant Fulfilment Actions:
+  const acceptSubOrder = (orderId: string) => {
     setOrders(prev =>
-      prev.map(order => {
-        if (order.id === orderId) {
-          const currentIndex = statusFlow.indexOf(order.status);
-          const nextIndex = Math.min(statusFlow.length - 1, currentIndex + 1);
-          return { ...order, status: statusFlow[nextIndex] };
+      prev.map(o => (o.id === orderId ? { ...o, status: 'packing' } : o))
+    );
+  };
+
+  const rejectSubOrder = (orderId: string, reason: string) => {
+    setOrders(prev =>
+      prev.map(o => {
+        if (o.id === orderId) {
+          // Trigger automated refund via paymentService (Spec §5.5, §5.6)
+          if (o.paymentReference) {
+            processRefund(o.paymentReference, o.totalAmount, reason);
+          }
+          return { ...o, status: 'placed', paymentStatus: 'refunded' };
         }
-        return order;
+        return o;
       })
+    );
+  };
+
+  const markReadyForPickup = (orderId: string) => {
+    setOrders(prev =>
+      prev.map(o => (o.id === orderId ? { ...o, status: 'out_for_delivery' } : o))
+    );
+  };
+
+  const handOffToDelivery = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order && order.subOrders && order.subOrders.length > 0) {
+      handoffToSharedDelivery(
+        order.subOrders[0],
+        'Shop 4, Block C Market, Green Park',
+        `${order.deliveryAddress.street}, ${order.deliveryAddress.area}`
+      );
+    }
+    setOrders(prev =>
+      prev.map(o => (o.id === orderId ? { ...o, status: 'out_for_delivery' } : o))
     );
   };
 
@@ -183,7 +224,10 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         addProduct,
         editProduct,
         deleteProduct,
-        advanceOrderStatus,
+        acceptSubOrder,
+        rejectSubOrder,
+        markReadyForPickup,
+        handOffToDelivery,
         addNewOrder,
         addQuotationRequest,
         submitQuotationResponse,
@@ -199,6 +243,8 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
 export const useMerchant = () => {
   const context = useContext(MerchantContext);
-  if (!context) throw new Error('useMerchant must be used within a MerchantProvider');
+  if (!context) {
+    throw new Error('useMerchant must be used within a MerchantProvider');
+  }
   return context;
 };

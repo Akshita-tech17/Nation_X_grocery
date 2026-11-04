@@ -4,7 +4,6 @@ import { CartProvider, useCart } from './context/CartContext';
 import { StoreProvider } from './context/StoreContext';
 import { MerchantProvider } from './context/MerchantContext';
 
-import { DemoBanner } from './components/common/DemoBanner';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { CartDrawer } from './components/layout/CartDrawer';
@@ -38,7 +37,6 @@ const ToastContainer: React.FC = () => {
 export const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-stone-50/60 text-stone-900 font-sans selection:bg-forest-100 selection:text-forest-950">
-      <DemoBanner />
       <Header />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 w-full">

@@ -2,7 +2,7 @@ import React from 'react';
 import { Store } from '../../types';
 import { useStore } from '../../context/StoreContext';
 import { useNavigate } from 'react-router-dom';
-import { Star, MapPin, Clock, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import { MapPin, Clock, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Badge } from '../common/Badge';
 
 interface MerchantCardProps {
@@ -64,11 +64,7 @@ export const MerchantCard: React.FC<MerchantCardProps> = ({ store }) => {
         <div className="space-y-2.5">
           {/* Key Metrics */}
           <div className="flex items-center justify-between text-xs text-warm-600 pt-1">
-            <div className="flex items-center gap-1 font-bold text-warm-900">
-              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-              <span>{store.rating}</span>
-              <span className="text-warm-400 font-normal">({store.reviewsCount})</span>
-            </div>
+            <div className="flex items-center gap-1.5 font-bold text-forest-800"><span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-md">Verified Storefront</span></div>
 
             <div className="flex items-center gap-1 font-medium text-warm-700">
               <Clock className="w-3.5 h-3.5 text-forest-700" />

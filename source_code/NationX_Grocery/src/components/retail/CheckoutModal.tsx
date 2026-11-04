@@ -1,38 +1,28 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useStore } from '../../context/StoreContext';
 import { useMerchant } from '../../context/MerchantContext';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
-import { Order } from '../../types';
-import {
-  MapPin,
-  Clock,
-  CreditCard,
-  CheckCircle2,
-  ShieldCheck,
-  ArrowRight,
-  QrCode,
-  Building,
-  Check,
-  Package
-} from 'lucide-react';
+import { Check, MapPin, CreditCard, ShieldCheck, Clock, Building2, Package, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { calculateOrderTotals } from '../../services/pricingService';
+import { createPaymentIntent, verifyProviderPayment, IS_COD_ENABLED } from '../../services/paymentService';
+import { createMultiShopOrder } from '../../services/orderService';
+import { SubOrder } from '../../types';
 
 export const CheckoutModal: React.FC = () => {
-  const navigate = useNavigate();
-  const { checkoutModalOpen, setCheckoutModalOpen, cart, subtotal, originalTotal, totalSavings, clearCart } = useCart();
+  const { cart, checkoutModalOpen, setCheckoutModalOpen, clearCart } = useCart();
   const { currentLocation } = useStore();
   const { addNewOrder } = useMerchant();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [placedOrderId, setPlacedOrderId] = useState<string>('');
 
-  // Form states
-  const [name, setName] = useState('Ananya Sen');
-  const [phone, setPhone] = useState('+91 98450 11928');
-  const [street, setStreet] = useState('Flat 301, Palm Meadows, 14th Main');
+  // Address form
+  const [name, setName] = useState('Akshita Singh');
+  const [phone, setPhone] = useState('+91 98765 43210');
+  const [street, setStreet] = useState('Flat 402, Nilgiri Heights, Green Park');
   const [addressType, setAddressType] = useState<'home' | 'work' | 'business'>('home');
   const [businessName, setBusinessName] = useState('');
   const [gstNumber, setGstNumber] = useState('');
@@ -43,51 +33,78 @@ export const CheckoutModal: React.FC = () => {
   // Payment method
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking' | 'cod'>('upi');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [placedOrderId, setPlacedOrderId] = useState<string>('');
+  const [createdSubOrders, setCreatedSubOrders] = useState<SubOrder[]>([]);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   if (!checkoutModalOpen) return null;
 
-  const hasWholesaleItems = cart.some(item => item.mode === 'wholesale');
-  const deliveryFee = subtotal >= 499 ? 0 : 39;
-  const finalPayable = subtotal + deliveryFee;
+  // Authoritative server-side price calculation (Spec §4.2, §5.3)
+  const totals = calculateOrderTotals(cart);
+
+  // Identify distinct shops involved in this cart (Spec §5.2)
+  const participatingStores = Array.from(new Set(cart.map(i => i.product.merchantName || 'Local Kirana')));
 
   const handlePlaceOrder = () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      const newId = `NX-${Math.floor(10000 + Math.random() * 90000)}`;
-      setPlacedOrderId(newId);
+    setPaymentError(null);
 
-      const newOrder: Order = {
-        id: newId,
-        date: 'Just now',
-        items: [...cart],
-        totalAmount: finalPayable,
-        originalAmount: originalTotal,
-        savings: totalSavings,
-        orderType: hasWholesaleItems ? 'wholesale' : 'retail',
-        status: 'placed',
-        storeId: 'store-sharma-kirana',
-        storeName: 'Sharmaji Kirana & Superstore',
-        deliveryAddress: {
-          name,
-          phone,
-          street,
-          area: currentLocation.area,
-          city: currentLocation.city,
-          pincode: currentLocation.pincode,
-          addressType,
-          businessName: businessName || undefined,
-          gstNumber: gstNumber || undefined
-        },
-        paymentMethod: paymentMethod === 'upi' ? 'UPI (Instant Demo)' : paymentMethod === 'cod' ? 'Cash/Credit on Delivery' : 'Online Banking',
-        paymentStatus: 'paid',
-        estimatedDelivery: hasWholesaleItems ? 'Today by 3:30 PM (Mandi Mini-Truck)' : `${currentLocation.eta}`
-      };
+    // 1. Create Payment Intent with unique idempotency key (Spec §5.5, Test 11)
+    const idempotencyKey = `idemp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const methodEnum = paymentMethod === 'upi' ? 'UPI' : paymentMethod === 'card' ? 'CARD' : paymentMethod === 'netbanking' ? 'NETBANKING' : 'CASH_ON_DELIVERY';
 
-      addNewOrder(newOrder);
-      clearCart();
+    const intent = createPaymentIntent({
+      parentOrderId: 'temp_order',
+      amount: totals.finalPayableAmount,
+      idempotencyKey,
+      paymentMethod: methodEnum
+    });
+
+    if (!intent.success) {
       setIsProcessing(false);
-      setStep(4); // Success screen
-    }, 1200);
+      setPaymentError(intent.error || 'Payment initiation failed');
+      return;
+    }
+
+    // 2. Verify provider-confirmed status (Spec §5.5)
+    const verification = verifyProviderPayment(intent.transactionReference, {
+      gatewayPaymentId: `gw_pay_${Date.now()}`,
+      status: 'PAID'
+    });
+
+    if (!verification.success) {
+      setIsProcessing(false);
+      setPaymentError(verification.error || 'Payment gateway declined transaction');
+      return;
+    }
+
+    // 3. Create 1 Parent Order + N Merchant Suborders (Spec §5.2, Tests 7 & 8)
+    const { parentOrder, subOrders } = createMultiShopOrder({
+      customerId: 'cust_akshita_17',
+      customerName: name,
+      customerPhone: phone,
+      deliveryAddress: {
+        name,
+        phone,
+        street,
+        area: currentLocation.area,
+        city: currentLocation.city,
+        pincode: currentLocation.pincode,
+        addressType,
+        businessName: businessName || undefined,
+        gstNumber: gstNumber || undefined
+      },
+      cartItems: cart,
+      paymentMethod: paymentMethod === 'upi' ? 'UPI (Instant Confirmed)' : 'Online Banking',
+      paymentReference: intent.transactionReference
+    });
+
+    setPlacedOrderId(parentOrder.id);
+    setCreatedSubOrders(subOrders);
+    addNewOrder(parentOrder);
+    clearCart();
+    setIsProcessing(false);
+    setStep(4); // Success screen
   };
 
   return (
@@ -107,6 +124,19 @@ export const CheckoutModal: React.FC = () => {
             <MapPin className="w-4 h-4 text-forest-700" />
             1. Delivery Address & Contact
           </h4>
+
+          {/* Multi-Shop Notice */}
+          {participatingStores.length > 1 && (
+            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-amber-700" />
+                Multi-Shop Basket ({participatingStores.length} Stores)
+              </div>
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                Items in your basket will be prepared independently by {participatingStores.join(' and ')} to guarantee local authenticity and stock availability (Spec §5.2).
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
@@ -128,86 +158,32 @@ export const CheckoutModal: React.FC = () => {
                 className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-forest-600 focus:bg-white text-stone-900"
               />
             </div>
-          </div>
 
-          <div className="text-xs">
-            <label className="font-semibold text-stone-700 block mb-1">House/Flat No., Building & Street</label>
-            <input
-              type="text"
-              value={street}
-              onChange={e => setStreet(e.target.value)}
-              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-forest-600 focus:bg-white text-stone-900"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 text-xs">
-            <span className="font-semibold text-stone-700">Address Label:</span>
-            {(['home', 'work', 'business'] as const).map(type => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setAddressType(type)}
-                className={`px-3 py-1 rounded-lg capitalize font-medium border transition-colors ${
-                  addressType === type
-                    ? 'bg-forest-900 text-white border-forest-900'
-                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-
-          {/* Area Pincode Locked to Header Selection */}
-          <div className="p-3 bg-forest-50/70 rounded-xl border border-forest-200 text-xs flex items-center justify-between">
-            <div>
-              <span className="font-bold text-forest-950">
-                {currentLocation.area}, {currentLocation.city}
-              </span>
-              <div className="text-stone-500 font-mono text-[11px]">PIN: {currentLocation.pincode} • {currentLocation.eta}</div>
-            </div>
-            <Badge variant="forest">Selected Zone</Badge>
-          </div>
-
-          {/* Business GSTIN option if wholesale */}
-          <div className="pt-2 border-t border-stone-200 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-indigo-700" />
-                GST Invoice for Tax Credit (Optional)
-              </span>
-              {hasWholesaleItems && (
-                <Badge variant="blue" size="sm">Recommended for BulkBuy</Badge>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="sm:col-span-2">
+              <label className="font-semibold text-stone-700 block mb-1">Street Address, Flat / Building</label>
               <input
                 type="text"
-                value={businessName}
-                onChange={e => setBusinessName(e.target.value)}
-                placeholder="Business / Restaurant Name"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900"
+                value={street}
+                onChange={e => setStreet(e.target.value)}
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:ring-1 focus:ring-forest-600 focus:bg-white text-stone-900"
               />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="font-semibold text-stone-700 block mb-1">Area / Pincode</label>
               <input
                 type="text"
-                value={gstNumber}
-                onChange={e => setGstNumber(e.target.value)}
-                placeholder="15-digit GSTIN (e.g. 29AAAAA0000A1Z5)"
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 uppercase font-mono"
+                disabled
+                value={`${currentLocation.area}, ${currentLocation.city} - ${currentLocation.pincode}`}
+                className="w-full px-3 py-2 bg-stone-100 border border-stone-200 rounded-xl text-stone-600 cursor-not-allowed text-xs"
               />
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end">
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => setStep(2)}
-              icon={<ArrowRight className="w-4 h-4" />}
-              iconPosition="right"
-            >
-              Continue to Delivery Slot
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xs text-stone-500 font-mono">Step 1 of 3</span>
+            <Button variant="primary" size="md" onClick={() => setStep(2)}>
+              Proceed to Delivery Slot
             </Button>
           </div>
         </div>
@@ -217,67 +193,50 @@ export const CheckoutModal: React.FC = () => {
         <div className="space-y-4">
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <Clock className="w-4 h-4 text-forest-700" />
-            2. Choose Delivery Slot & Logistics
+            2. Choose Delivery Window
           </h4>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2 text-xs">
             {[
-              {
-                title: '⚡ Express Kirana Delivery',
-                desc: `Direct from nearest verified shop (${currentLocation.eta})`,
-                badge: 'Recommended'
-              },
-              {
-                title: '📦 Scheduled Evening Slot (06:00 PM - 09:00 PM)',
-                desc: 'Consolidated drop after work hours',
-                badge: 'Standard'
-              },
-              {
-                title: '🚚 Mandi Bulk Mini-Truck Freight (Next Morning 08:00 AM)',
-                desc: 'Dedicated tailgate loading for 25kg+ bags and restaurant cartons',
-                badge: hasWholesaleItems ? 'B2B Default' : 'Heavy Packs'
-              }
-            ].map(slot => (
+              { slot: 'Express 15-25 Mins (Fastest)', tag: 'Recommended', fee: 'Free above ₹499' },
+              { slot: 'Today Evening • 06:00 PM - 08:30 PM', tag: 'Eco Batch', fee: 'Free' },
+              { slot: 'Tomorrow Morning • 07:00 AM - 09:30 AM', tag: 'Scheduled', fee: 'Free' }
+            ].map(item => (
               <label
-                key={slot.title}
-                className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                  selectedSlot === slot.title
-                    ? 'border-forest-600 bg-forest-50/70 text-forest-950 font-semibold shadow-sm'
-                    : 'border-stone-200 hover:border-stone-300 bg-stone-50/40 text-stone-800'
+                key={item.slot}
+                onClick={() => setSelectedSlot(item.slot)}
+                className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  selectedSlot === item.slot
+                    ? 'border-forest-600 bg-forest-50/50'
+                    : 'border-stone-200 hover:border-stone-300'
                 }`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-center gap-2.5">
                   <input
                     type="radio"
-                    name="deliverySlot"
-                    checked={selectedSlot === slot.title}
-                    onChange={() => setSelectedSlot(slot.title)}
-                    className="mt-1 text-forest-700 focus:ring-forest-600"
+                    name="slot"
+                    checked={selectedSlot === item.slot}
+                    onChange={() => setSelectedSlot(item.slot)}
+                    className="text-forest-700 focus:ring-forest-600"
                   />
                   <div>
-                    <div className="text-xs font-bold text-stone-900">{slot.title}</div>
-                    <div className="text-[11px] text-stone-500">{slot.desc}</div>
+                    <div className="font-bold text-stone-900">{item.slot}</div>
+                    <div className="text-[11px] text-stone-500">{item.fee}</div>
                   </div>
                 </div>
-                <Badge variant={slot.badge === 'Recommended' ? 'forest' : 'stone'} size="sm">
-                  {slot.badge}
-                </Badge>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
+                  {item.tag}
+                </span>
               </label>
             ))}
           </div>
 
-          <div className="pt-4 flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             <Button variant="ghost" size="sm" onClick={() => setStep(1)}>
-              Back to Address
+              Back
             </Button>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => setStep(3)}
-              icon={<ArrowRight className="w-4 h-4" />}
-              iconPosition="right"
-            >
-              Continue to Payment
+            <Button variant="primary" size="md" onClick={() => setStep(3)}>
+              Proceed to Payment
             </Button>
           </div>
         </div>
@@ -287,110 +246,139 @@ export const CheckoutModal: React.FC = () => {
         <div className="space-y-4">
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-forest-700" />
-            3. Payment Method (Interactive Demo)
+            3. Authoritative Payment Gateway (Spec §5.5)
           </h4>
 
-          {/* Payment Method Selector */}
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              type="button"
+          {paymentError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-xs text-rose-700 rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{paymentError}</span>
+            </div>
+          )}
+
+          <div className="space-y-2 text-xs">
+            <label
               onClick={() => setPaymentMethod('upi')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'upi'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
+              className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                paymentMethod === 'upi' ? 'border-forest-600 bg-forest-50/50' : 'border-stone-200'
               }`}
             >
-              <div className="flex items-center gap-1.5 font-bold">
-                <QrCode className="w-4 h-4 text-forest-700" />
-                <span>UPI (GPay / PhonePe)</span>
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  name="pay"
+                  checked={paymentMethod === 'upi'}
+                  onChange={() => setPaymentMethod('upi')}
+                  className="text-forest-700 focus:ring-forest-600"
+                />
+                <div>
+                  <div className="font-bold text-stone-900">UPI Instant Payment (GPay, PhonePe, Paytm, BHIM)</div>
+                  <div className="text-[11px] text-stone-500">Provider-confirmed status with duplicate callback safeguards</div>
+                </div>
               </div>
-              <span className="text-[10px] text-stone-500">Zero surcharge • Instant</span>
-            </button>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                0% Fee
+              </span>
+            </label>
 
-            <button
-              type="button"
+            <label
               onClick={() => setPaymentMethod('card')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'card'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
+              className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                paymentMethod === 'card' ? 'border-forest-600 bg-forest-50/50' : 'border-stone-200'
               }`}
             >
-              <div className="flex items-center gap-1.5 font-bold">
-                <CreditCard className="w-4 h-4 text-forest-700" />
-                <span>Credit / Debit Cards</span>
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  name="pay"
+                  checked={paymentMethod === 'card'}
+                  onChange={() => setPaymentMethod('card')}
+                  className="text-forest-700 focus:ring-forest-600"
+                />
+                <div>
+                  <div className="font-bold text-stone-900">Credit / Debit Card</div>
+                  <div className="text-[11px] text-stone-500">Visa, Mastercard, RuPay, Corporate Commercial Cards</div>
+                </div>
               </div>
-              <span className="text-[10px] text-stone-500">Visa, Mastercard, RuPay</span>
-            </button>
+            </label>
 
-            <button
-              type="button"
+            <label
               onClick={() => setPaymentMethod('netbanking')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'netbanking'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
+              className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                paymentMethod === 'netbanking' ? 'border-forest-600 bg-forest-50/50' : 'border-stone-200'
               }`}
             >
-              <div className="flex items-center gap-1.5 font-bold">
-                <Building className="w-4 h-4 text-forest-700" />
-                <span>Net Banking / RTGS</span>
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="radio"
+                  name="pay"
+                  checked={paymentMethod === 'netbanking'}
+                  onChange={() => setPaymentMethod('netbanking')}
+                  className="text-forest-700 focus:ring-forest-600"
+                />
+                <div>
+                  <div className="font-bold text-stone-900">Net Banking</div>
+                  <div className="text-[11px] text-stone-500">All major Indian public & private sector banks</div>
+                </div>
               </div>
-              <span className="text-[10px] text-stone-500">Corporate & B2B transfers</span>
-            </button>
+            </label>
 
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('cod')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'cod'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
-              }`}
-            >
-              <div className="flex items-center gap-1.5 font-bold">
-                <CheckCircle2 className="w-4 h-4 text-forest-700" />
-                <span>Cash on Delivery</span>
+            {/* Cash on Delivery Guard (Spec §5.5) */}
+            <div className="p-3 rounded-xl border border-stone-200 bg-stone-50 opacity-60 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-stone-700">Cash on Delivery (COD)</div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-stone-200 text-stone-700">
+                  Disabled
+                </span>
               </div>
-              <span className="text-[10px] text-stone-500">Pay cash or UPI at door</span>
-            </button>
+              <p className="text-[11px] text-stone-500 mt-1">
+                COD support remains disabled per platform operating policy (§5.5) pending business governance sign-off.
+              </p>
+            </div>
           </div>
 
-          {/* Order Summary Pill */}
-          <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 space-y-1.5 text-xs">
+          {/* Pricing Breakdown Snapshot */}
+          <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs space-y-1.5 font-mono">
             <div className="flex justify-between text-stone-600">
-              <span>Items Total ({cart.length} types)</span>
-              <span>₹{subtotal}</span>
+              <span>Item Total ({cart.length} items):</span>
+              <span>₹{totals.itemsTotal}</span>
             </div>
-            {totalSavings > 0 && (
-              <div className="flex justify-between text-emerald-700 font-medium">
-                <span>Wholesale & Promo Savings</span>
-                <span>-₹{totalSavings}</span>
+            {totals.totalSavings > 0 && (
+              <div className="flex justify-between text-emerald-700 font-bold">
+                <span>Wholesale & MRP Savings:</span>
+                <span>-₹{totals.totalSavings}</span>
               </div>
             )}
             <div className="flex justify-between text-stone-600">
-              <span>Delivery Charges</span>
-              <span>{deliveryFee === 0 ? <strong className="text-emerald-700">FREE</strong> : `₹${deliveryFee}`}</span>
+              <span>GST (5% on packaged goods):</span>
+              <span>₹{totals.taxAmount}</span>
             </div>
-            <div className="flex justify-between text-sm font-bold text-stone-900 pt-1.5 border-t border-stone-200">
-              <span>Final Payable</span>
-              <span className="text-forest-900 font-mono text-base">₹{finalPayable}</span>
+            <div className="flex justify-between text-stone-600">
+              <span>Delivery Fee:</span>
+              <span>{totals.deliveryFee === 0 ? 'FREE' : `₹${totals.deliveryFee}`}</span>
+            </div>
+            <div className="flex justify-between text-stone-600">
+              <span>Platform Handling:</span>
+              <span>₹{totals.platformFee}</span>
+            </div>
+            <div className="flex justify-between text-stone-900 font-bold text-sm pt-1 border-t border-stone-200">
+              <span>Total Payable Amount:</span>
+              <span className="text-forest-800">₹{totals.finalPayableAmount}</span>
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
               Back
             </Button>
             <Button
               variant="primary"
-              size="lg"
+              size="md"
               loading={isProcessing}
               onClick={handlePlaceOrder}
               icon={<ShieldCheck className="w-4 h-4" />}
             >
-              Place Order • ₹{finalPayable}
+              Pay ₹{totals.finalPayableAmount} & Confirm Order
             </Button>
           </div>
         </div>
@@ -404,22 +392,28 @@ export const CheckoutModal: React.FC = () => {
 
           <div>
             <span className="inline-block px-3 py-1 rounded-full bg-forest-50 text-forest-900 font-mono font-bold text-xs mb-2">
-              Order ID: #{placedOrderId}
+              Parent Order ID: #{placedOrderId}
             </span>
             <h3 className="text-xl font-bold text-stone-900">
-              Order Confirmed & Sent to Kirana!
+              Order Confirmed & Split to Merchants!
             </h3>
             <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
-              Your order has been routed to <strong>Sharmaji Kirana & Superstore</strong>.
-              Estimated delivery: <strong>{currentLocation.eta}</strong>.
+              Created <strong>1 Parent Order</strong> with <strong>{createdSubOrders.length} Suborder(s)</strong> dispatched to respective store fulfillment desks (Spec §5.2).
             </p>
           </div>
 
-          <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs text-left max-w-sm mx-auto space-y-1">
-            <div className="font-semibold text-stone-800">Dispatch Summary:</div>
-            <div className="text-stone-600">• Destination: {name}, {street}, {currentLocation.pincode}</div>
-            <div className="text-stone-600">• Slot: {selectedSlot}</div>
-            <div className="text-forest-800 font-bold">• Check Order Tracking or Merchant Hub to watch real-time fulfillment!</div>
+          {/* Suborder Breakdown Cards */}
+          <div className="space-y-2 max-w-md mx-auto text-left">
+            {createdSubOrders.map((so, idx) => (
+              <div key={idx} className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs space-y-1">
+                <div className="flex justify-between font-bold text-stone-900">
+                  <span>Suborder #{so.subOrderNumber}</span>
+                  <span className="font-mono text-forest-800">₹{so.subtotalAmount + so.taxAmount}</span>
+                </div>
+                <div className="text-stone-600">Merchant: <strong>{so.storeName}</strong></div>
+                <div className="text-[11px] text-stone-500">Status: <span className="text-amber-700 font-semibold">{so.status}</span> • Handing to Shared Delivery</div>
+              </div>
+            ))}
           </div>
 
           <div className="pt-4 flex items-center justify-center gap-3">

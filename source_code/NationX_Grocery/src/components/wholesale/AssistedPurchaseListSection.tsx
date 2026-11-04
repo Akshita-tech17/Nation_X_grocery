@@ -196,18 +196,6 @@ export const AssistedPurchaseListSection: React.FC = () => {
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Rapid SKU Grid</span>
           </button>
-
-          <button
-            onClick={() => setInputMode('csv')}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all ${
-              inputMode === 'csv'
-                ? 'bg-white text-forest-950 shadow-sm'
-                : 'text-warm-600 hover:text-warm-900'
-            }`}
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span>CSV Upload</span>
-          </button>
         </div>
       </div>
 

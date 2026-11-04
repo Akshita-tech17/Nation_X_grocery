@@ -5,14 +5,7 @@ import { PRODUCTS } from '../../data/products';
 import { Modal } from '../common/Modal';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
-import {
-  MapPin,
-  Star,
-  Boxes,
-  ShoppingBag,
-  Plus,
-  Minus
-} from 'lucide-react';
+import { MapPin, Boxes, ShoppingBag, Plus, Minus } from 'lucide-react';
 
 export const ProductQuickViewModal: React.FC = () => {
   const { selectedProductQuickView, setSelectedProductQuickView } = useStore();
@@ -83,11 +76,7 @@ export const ProductQuickViewModal: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-warm-500">
               <span className="font-bold uppercase tracking-wider text-warm-600">{product.brand}</span>
-              <div className="flex items-center gap-1 font-semibold text-warm-800">
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                <span>{product.rating}</span>
-                <span className="text-warm-400">({product.reviewCount} reviews)</span>
-              </div>
+              <div className="flex items-center gap-1 font-semibold text-forest-800"><span className="text-stone-700 bg-stone-100 px-2 py-0.5 rounded-md font-mono text-[11px]">{product.packSize || product.unit}</span></div>
             </div>
 
             <h2 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">
