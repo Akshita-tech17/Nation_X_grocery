@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useMerchant } from '../context/MerchantContext';
-import { useCart } from '../context/CartContext';
 import { MetricsBar } from '../components/merchant/MetricsBar';
 import { ProductManagementTable } from '../components/merchant/ProductManagementTable';
 import { InventoryTable } from '../components/merchant/InventoryTable';
@@ -13,13 +12,11 @@ import {
   Package,
   Layers,
   ShoppingBag,
-  FileText,
-  PlusCircle
+  FileText
 } from 'lucide-react';
 
 export const MerchantDashboardPage: React.FC = () => {
-  const { merchants, activeMerchantId, setActiveMerchantId, addNewOrder, orders, quotations } = useMerchant();
-  const { showToast } = useCart();
+  const { merchants, activeMerchantId, setActiveMerchantId, orders, quotations } = useMerchant();
 
   // 5 Merchant Screens Tab Navigation
   const [activeTab, setActiveTab] = useState<
@@ -27,65 +24,6 @@ export const MerchantDashboardPage: React.FC = () => {
   >('dashboard');
 
   const currentStore = merchants.find(m => m.id === activeMerchantId) || merchants[0];
-
-  const handleSimulateIncomingOrder = () => {
-    const id = `NX-LIVE-${Math.floor(1000 + Math.random() * 9000)}`;
-    addNewOrder({
-      id,
-      date: 'Just Now',
-      items: [
-        {
-          product: {
-            id: 'prod-aashirvaad-sharbati',
-            name: 'Aashirvaad Select 100% MP Sharbati Whole Wheat Atta',
-            hindiName: 'आशीर्वाद सेलेक्ट शरबती गेहूं आटा',
-            brand: 'Aashirvaad',
-            category: 'staples-atta',
-            subCategory: 'Atta',
-            unit: '5 kg',
-            packSize: '5 kg bag',
-            retailPrice: 345,
-            originalPrice: 385,
-            image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
-            rating: 4.8,
-            reviewCount: 1420,
-            inStock: true,
-            stockQuantity: 48,
-            origin: 'Sehore, MP',
-            description: 'Sharbati atta.',
-            tags: ['Sharbati'],
-            merchantId: currentStore.id,
-            merchantName: currentStore.name
-          },
-          quantity: 2,
-          mode: 'retail',
-          unitPrice: 345,
-          totalPrice: 690
-        }
-      ],
-      totalAmount: 690,
-      originalAmount: 770,
-      savings: 80,
-      orderType: 'retail',
-      status: 'placed',
-      storeId: currentStore.id,
-      storeName: currentStore.name,
-      deliveryAddress: {
-        name: 'Siddharth Rao',
-        phone: '+91 99450 77312',
-        street: 'Flat 102, Shanti Nivas, 5th Cross',
-        area: currentStore.area,
-        city: currentStore.city,
-        pincode: currentStore.pincode,
-        addressType: 'home'
-      },
-      paymentMethod: 'UPI (PhonePe)',
-      paymentStatus: 'paid',
-      estimatedDelivery: 'In 20 mins'
-    });
-
-    showToast(`Ding! New incoming order #${id} received in pipeline!`);
-  };
 
   const pendingOrdersCount = orders.filter(o => o.status !== 'delivered').length;
   const pendingQuotationsCount = quotations.filter(q => q.status === 'under_review' || q.status === 'submitted').length;
@@ -113,7 +51,7 @@ export const MerchantDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Store Switcher & Simulated Order Action */}
+        {/* Store Switcher */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-xs">
             <span className="text-stone-400 font-medium">Switch Store:</span>
@@ -129,15 +67,6 @@ export const MerchantDashboardPage: React.FC = () => {
               ))}
             </select>
           </div>
-
-          <Button
-            size="sm"
-            variant="amber"
-            onClick={handleSimulateIncomingOrder}
-            icon={<PlusCircle className="w-4 h-4" />}
-          >
-            Simulate Incoming Order
-          </Button>
         </div>
       </div>
 

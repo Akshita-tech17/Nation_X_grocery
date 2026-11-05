@@ -83,11 +83,17 @@ export const ProductQuickViewModal: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-warm-500">
               <span className="font-bold uppercase tracking-wider text-warm-600">{product.brand}</span>
-              <div className="flex items-center gap-1 font-semibold text-warm-800">
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                <span>{product.rating}</span>
-                <span className="text-warm-400">({product.reviewCount} reviews)</span>
-              </div>
+              {product.reviewCount && product.reviewCount > 0 ? (
+                <div className="flex items-center gap-1 font-semibold text-warm-800">
+                  <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span>{product.rating}</span>
+                  <span className="text-warm-400">({product.reviewCount} reviews)</span>
+                </div>
+              ) : (
+                <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  Verified Lot
+                </span>
+              )}
             </div>
 
             <h2 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">

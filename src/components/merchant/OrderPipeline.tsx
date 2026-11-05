@@ -39,6 +39,8 @@ export const OrderPipeline: React.FC = () => {
         return <Badge variant="purple">Store Confirmed</Badge>;
       case 'packing':
         return <Badge variant="amber">Packing Items</Badge>;
+      case 'ready_for_pickup':
+        return <Badge variant="blue">Ready for Pickup</Badge>;
       case 'out_for_delivery':
         return <Badge variant="blue">Out for Delivery</Badge>;
       case 'delivered':
@@ -53,7 +55,9 @@ export const OrderPipeline: React.FC = () => {
       case 'confirmed':
         return 'Start Packing Items';
       case 'packing':
-        return 'Handover to Rider';
+        return 'Mark Ready for Pickup';
+      case 'ready_for_pickup':
+        return 'Handover to Delivery Rider';
       case 'out_for_delivery':
         return 'Mark Successfully Delivered';
       case 'delivered':

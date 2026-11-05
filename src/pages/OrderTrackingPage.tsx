@@ -44,6 +44,12 @@ const STATUS_STAGES: Array<{
     etaNote: 'Rider assigned for pickup'
   },
   {
+    key: 'ready_for_pickup',
+    label: 'Ready for Pickup',
+    description: 'Merchant packed items; queued for delivery partner handoff',
+    etaNote: 'Rider arriving at store'
+  },
+  {
     key: 'out_for_delivery',
     label: 'Out for Delivery',
     description: 'Delivery partner on the way with insulated grocery kit',
@@ -61,7 +67,7 @@ export const OrderTrackingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const requestedId = searchParams.get('id');
 
-  const { orders, advanceOrderStatus } = useMerchant();
+  const { orders } = useMerchant();
   const { showToast, addToCart } = useCart();
 
   // Selected order state: defaults to requestedId from query, or the newest active order
@@ -80,16 +86,6 @@ export const OrderTrackingPage: React.FC = () => {
       addToCart(item.product, item.quantity, item.mode);
     });
     showToast(`Added ${order.items.length} items back to your basket!`);
-  };
-
-  const handleSimulateNextStep = () => {
-    if (!activeOrder) return;
-    if (activeOrder.status === 'delivered') {
-      showToast('Order is already fully delivered and completed.');
-      return;
-    }
-    advanceOrderStatus(activeOrder.id);
-    showToast(`Progressed Order #${activeOrder.id} to next live fulfillment status!`);
   };
 
   if (!activeOrder) {
@@ -170,18 +166,6 @@ export const OrderTrackingPage: React.FC = () => {
                   Placed on {activeOrder.date} • Paid via {activeOrder.paymentMethod}
                 </div>
               </div>
-
-              {/* Simulation control for demo/review purposes */}
-              {activeOrder.status !== 'delivered' && (
-                <button
-                  onClick={handleSimulateNextStep}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-forest-900 text-xs font-bold transition-colors border border-emerald-200"
-                  title="Simulate dispatch steps in real-time"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Simulate Next Stage</span>
-                </button>
-              )}
             </div>
 
             {/* Estimated Arrival Badge */}

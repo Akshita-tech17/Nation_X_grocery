@@ -140,11 +140,17 @@ export const ProductDetailPage: React.FC = () => {
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs font-bold text-stone-600">
                   <span className="uppercase tracking-wider font-extrabold text-stone-800">{product.brand}</span>
-                  <div className="flex items-center gap-1 text-stone-800 font-semibold">
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                    <span>{product.rating}</span>
-                    <span className="text-stone-500 font-normal">({product.reviewCount} customer reviews)</span>
-                  </div>
+                  {product.reviewCount && product.reviewCount > 0 ? (
+                    <div className="flex items-center gap-1 text-stone-800 font-semibold">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      <span>{product.rating}</span>
+                      <span className="text-stone-500 font-normal">({product.reviewCount} customer reviews)</span>
+                    </div>
+                  ) : (
+                    <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Verified Mandi / Direct Lot
+                    </span>
+                  )}
                 </div>
 
                 <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-950 leading-tight">

@@ -62,3 +62,18 @@ export function partitionCartIntoSuborders(
     };
   });
 }
+
+/**
+ * Convenient alias for partitioning cart into merchant suborders.
+ */
+export function partitionCartByMerchant(
+  cart: CartItem[],
+  orderId: string = 'ORD-PARTITION-DEFAULT',
+  defaultArea: string = 'Central Market'
+): MerchantSuborder[] {
+  return partitionCartIntoSuborders(cart, {
+    orderId,
+    defaultArea,
+  });
+}
+

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PRODUCTS } from '../../data/products';
 import { ParsedPurchaseItem } from '../../types';
 import { parsePurchaseList } from '../../utils/whatsappParser';
+import { generateCsvTemplate, parseCsvContent } from '../../utils/csvParser';
 import { useCart } from '../../context/CartContext';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
@@ -53,6 +54,45 @@ export const AssistedPurchaseListSection: React.FC = () => {
   const [rawText, setRawText] = useState(PRESET_LISTS[0].text);
   const [parsedItems, setParsedItems] = useState<ParsedPurchaseItem[]>([]);
   const [isParsed, setIsParsed] = useState(false);
+  const [csvErrors, setCsvErrors] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadTemplate = () => {
+    const csvData = generateCsvTemplate();
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'nationx_b2b_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Downloaded nationx_b2b_template.csv');
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = (event.target?.result as string) || '';
+      const res = parseCsvContent(content, PRODUCTS);
+      if (res.items.length > 0) {
+        setParsedItems(res.items);
+        setIsParsed(true);
+        setInputMode('text');
+        showToast(`Imported ${res.items.length} items from ${file.name}`);
+      }
+      setCsvErrors(res.errors);
+      if (res.errors.length > 0 && res.items.length === 0) {
+        showToast(`CSV error: ${res.errors[0]}`);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   // Spreadsheet Grid Rows state
   const [gridRows, setGridRows] = useState<{ productId: string; quantity: number }[]>([
@@ -459,25 +499,42 @@ export const AssistedPurchaseListSection: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
-              onClick={() => showToast('📥 Downloaded nationx_b2b_template.csv')}
-              className="px-4 py-2 rounded-xl border border-warm-300 hover:border-warm-400 bg-warm-50 hover:bg-white text-xs font-semibold text-warm-800 flex items-center gap-2 transition-colors"
+              onClick={handleDownloadTemplate}
+              className="px-4 py-2 rounded-xl border border-warm-300 hover:border-warm-400 bg-warm-50 hover:bg-white text-xs font-semibold text-warm-800 flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4 text-forest-700" />
               <span>Download CSV Template</span>
             </button>
 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".csv,text/csv"
+              className="hidden"
+            />
+
             <button
-              onClick={() => {
-                showToast('📤 Simulated CSV uploaded: 4 items imported into cart!');
-                parseList(PRESET_LISTS[0].text);
-                setInputMode('text');
-              }}
-              className="px-4 py-2 rounded-xl bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+              className="px-4 py-2 rounded-xl bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
             >
               <Upload className="w-4 h-4 text-emerald-300" />
               <span>Upload Completed CSV</span>
             </button>
           </div>
+
+          {csvErrors.length > 0 && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-left text-xs space-y-1">
+              <span className="font-bold text-rose-800 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" /> CSV Validation Errors:
+              </span>
+              <ul className="list-disc list-inside text-rose-700 text-[11px] space-y-0.5">
+                {csvErrors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

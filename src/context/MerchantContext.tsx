@@ -125,7 +125,7 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const advanceOrderStatus = (orderId: string, suborderId?: string) => {
-    const statusFlow: Order['status'][] = ['placed', 'confirmed', 'packing', 'out_for_delivery', 'delivered'];
+    const statusFlow: Order['status'][] = ['placed', 'confirmed', 'packing', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
     setOrders(prev =>
       prev.map(order => {
         if (order.id === orderId) {

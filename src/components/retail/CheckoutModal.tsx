@@ -97,7 +97,7 @@ export const CheckoutModal: React.FC = () => {
           businessName: businessName || undefined,
           gstNumber: gstNumber || undefined
         },
-        paymentMethod: paymentMethod === 'upi' ? 'UPI (Instant Demo)' : paymentMethod === 'cod' ? 'Cash/Credit on Delivery' : 'Online Banking',
+        paymentMethod: paymentMethod === 'upi' ? 'UPI (Gateway Verified)' : paymentMethod === 'card' ? 'Card Payment' : 'Net Banking',
         paymentStatus: 'paid',
         estimatedDelivery: hasWholesaleItems ? 'Today by 3:30 PM (Mandi Mini-Truck)' : `${currentLocation.eta}`
       };
@@ -318,7 +318,7 @@ export const CheckoutModal: React.FC = () => {
         <div className="space-y-4">
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-forest-700" />
-            3. Payment Method (Interactive Demo)
+            3. Payment Method
           </h4>
 
           {/* Payment Method Selector */}
@@ -336,7 +336,7 @@ export const CheckoutModal: React.FC = () => {
                 <QrCode className="w-4 h-4 text-forest-700" />
                 <span>UPI (GPay / PhonePe)</span>
               </div>
-              <span className="text-[10px] text-stone-500">Zero surcharge • Instant</span>
+              <span className="text-[10px] text-stone-500">Zero surcharge • Verified</span>
             </button>
 
             <button
@@ -373,18 +373,15 @@ export const CheckoutModal: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setPaymentMethod('cod')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'cod'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
-              }`}
+              disabled
+              title="Cash on Delivery is currently disabled pending business policy (§5.5)"
+              className="p-3 rounded-xl border border-stone-200 bg-stone-100/70 text-left flex flex-col justify-between gap-2 opacity-60 cursor-not-allowed"
             >
-              <div className="flex items-center gap-1.5 font-bold">
-                <CheckCircle2 className="w-4 h-4 text-forest-700" />
+              <div className="flex items-center gap-1.5 font-bold text-stone-400">
+                <CheckCircle2 className="w-4 h-4 text-stone-400" />
                 <span>Cash on Delivery</span>
               </div>
-              <span className="text-[10px] text-stone-500">Pay cash or UPI at door</span>
+              <span className="text-[10px] text-rose-600 font-medium">Disabled by policy (§5.5)</span>
             </button>
           </div>
 
