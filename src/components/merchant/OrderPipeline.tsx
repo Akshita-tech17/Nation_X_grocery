@@ -6,15 +6,28 @@ import { Button } from '../common/Button';
 import { Package, Phone, MapPin, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const OrderPipeline: React.FC = () => {
-  const { orders, advanceOrderStatus } = useMerchant();
+  const { orders, advanceOrderStatus, activeMerchantId, merchants } = useMerchant();
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
-  const filteredOrders = orders.filter(o => {
+  const currentStore = merchants.find(m => m.id === activeMerchantId) || merchants[0];
+
+  // Tenant Isolation: Only show orders or suborders belonging to the active merchant (Section 12)
+  const storeOrders = orders.filter(o =>
+    o.storeId === activeMerchantId || o.suborders?.some(sub => sub.storeId === activeMerchantId)
+  );
+
+  const getSuborderOrOrderStatus = (order: Order): Order['status'] => {
+    const sub = order.suborders?.find(s => s.storeId === activeMerchantId);
+    return sub ? sub.status : order.status;
+  };
+
+  const filteredOrders = storeOrders.filter(o => {
+    const status = getSuborderOrOrderStatus(o);
     if (filterStatus === 'all') return true;
-    if (filterStatus === 'pending') return o.status === 'placed' || o.status === 'confirmed';
-    if (filterStatus === 'packing') return o.status === 'packing';
-    if (filterStatus === 'dispatch') return o.status === 'out_for_delivery';
-    if (filterStatus === 'delivered') return o.status === 'delivered';
+    if (filterStatus === 'pending') return status === 'placed' || status === 'confirmed';
+    if (filterStatus === 'packing') return status === 'packing';
+    if (filterStatus === 'dispatch') return status === 'out_for_delivery';
+    if (filterStatus === 'delivered') return status === 'delivered';
     return true;
   });
 
@@ -26,6 +39,8 @@ export const OrderPipeline: React.FC = () => {
         return <Badge variant="purple">Store Confirmed</Badge>;
       case 'packing':
         return <Badge variant="amber">Packing Items</Badge>;
+      case 'ready_for_pickup':
+        return <Badge variant="blue">Ready for Pickup</Badge>;
       case 'out_for_delivery':
         return <Badge variant="blue">Out for Delivery</Badge>;
       case 'delivered':
@@ -40,7 +55,9 @@ export const OrderPipeline: React.FC = () => {
       case 'confirmed':
         return 'Start Packing Items';
       case 'packing':
-        return 'Handover to Rider';
+        return 'Mark Ready for Pickup';
+      case 'ready_for_pickup':
+        return 'Handover to Delivery Rider';
       case 'out_for_delivery':
         return 'Mark Successfully Delivered';
       case 'delivered':
@@ -59,14 +76,14 @@ export const OrderPipeline: React.FC = () => {
           </p>
         </div>
 
-        {/* Filter Pills */}
+        {/* Filter Pills with Store-Specific Counts */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           {[
-            { id: 'all', label: 'All Orders', count: orders.length },
-            { id: 'pending', label: 'Incoming', count: orders.filter(o => o.status === 'placed' || o.status === 'confirmed').length },
-            { id: 'packing', label: 'Packing', count: orders.filter(o => o.status === 'packing').length },
-            { id: 'dispatch', label: 'On Route', count: orders.filter(o => o.status === 'out_for_delivery').length },
-            { id: 'delivered', label: 'Delivered', count: orders.filter(o => o.status === 'delivered').length }
+            { id: 'all', label: 'All Orders', count: storeOrders.length },
+            { id: 'pending', label: 'Incoming', count: storeOrders.filter(o => getSuborderOrOrderStatus(o) === 'placed' || getSuborderOrOrderStatus(o) === 'confirmed').length },
+            { id: 'packing', label: 'Packing', count: storeOrders.filter(o => getSuborderOrOrderStatus(o) === 'packing').length },
+            { id: 'dispatch', label: 'On Route', count: storeOrders.filter(o => getSuborderOrOrderStatus(o) === 'out_for_delivery').length },
+            { id: 'delivered', label: 'Delivered', count: storeOrders.filter(o => getSuborderOrOrderStatus(o) === 'delivered').length }
           ].map(tab => (
             <button
               key={tab.id}
@@ -92,11 +109,17 @@ export const OrderPipeline: React.FC = () => {
       <div className="grid grid-cols-1 gap-3.5">
         {filteredOrders.length === 0 ? (
           <div className="bg-white rounded-2xl border border-stone-200 p-8 text-center text-xs text-stone-500">
-            No orders match the selected filter.
+            No orders match the selected filter for {currentStore.name}.
           </div>
         ) : (
           filteredOrders.map(order => {
-            const isDelivered = order.status === 'delivered';
+            const relevantSuborder = order.suborders?.find(s => s.storeId === activeMerchantId);
+            const activeStatus = relevantSuborder ? relevantSuborder.status : order.status;
+            const isDelivered = activeStatus === 'delivered';
+            const displayItems = relevantSuborder ? relevantSuborder.items : order.items;
+            const displayAmount = relevantSuborder ? relevantSuborder.subtotal : order.totalAmount;
+            const isMultiShop = order.suborders && order.suborders.length > 1;
+
             return (
               <div
                 key={order.id}
@@ -108,43 +131,51 @@ export const OrderPipeline: React.FC = () => {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-forest-50 text-forest-900">
+                    <div className="p-2 rounded-xl bg-forest-50 text-forest-900 shrink-0">
                       <Package className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="font-bold text-sm text-stone-900 font-mono">
                           {order.id}
                         </span>
+                        {relevantSuborder && (
+                          <span className="text-[10px] font-mono font-bold bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded">
+                            {relevantSuborder.id}
+                          </span>
+                        )}
+                        {isMultiShop && (
+                          <Badge variant="amber" size="sm">Multi-Shop Suborder</Badge>
+                        )}
                         {order.orderType === 'wholesale' ? (
                           <Badge variant="blue" size="sm">B2B Wholesale</Badge>
                         ) : (
                           <Badge variant="forest" size="sm">Retail Express</Badge>
                         )}
-                        {getStatusBadge(order.status)}
+                        {getStatusBadge(activeStatus)}
                       </div>
                       <div className="text-xs text-stone-500 mt-0.5">
-                        Placed on: {order.date} • {order.estimatedDelivery}
+                        Placed on: {order.date} • {relevantSuborder?.estimatedDelivery || order.estimatedDelivery}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <div className="text-base font-bold text-forest-950 font-mono">
-                      ₹{order.totalAmount}
+                      ₹{displayAmount}
                     </div>
                     <div className="text-[11px] text-stone-500">{order.paymentMethod}</div>
                   </div>
                 </div>
 
-                {/* Order Items Summary */}
+                {/* Order Items Summary (Isolated to this Store) */}
                 <div className="py-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div>
                     <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1.5">
-                      Items Ordered ({order.items.length})
+                      Your Store Items ({displayItems.length})
                     </span>
                     <div className="space-y-1.5">
-                      {order.items.map((item, idx) => (
+                      {displayItems.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between py-1 border-b border-stone-50">
                           <span className="text-stone-800 font-medium truncate max-w-[260px]">
                             {item.quantity}x {item.product.name}
@@ -189,10 +220,10 @@ export const OrderPipeline: React.FC = () => {
                     <Button
                       size="sm"
                       variant="primary"
-                      onClick={() => advanceOrderStatus(order.id)}
+                      onClick={() => advanceOrderStatus(order.id, relevantSuborder?.id)}
                       icon={<ArrowRight className="w-3.5 h-3.5" />}
                     >
-                      {getNextActionLabel(order.status)}
+                      {getNextActionLabel(activeStatus)}
                     </Button>
                   )}
                   {isDelivered && (

@@ -55,7 +55,7 @@ interface MerchantContextType {
   addProduct: (product: Product) => void;
   editProduct: (productId: string, updated: Partial<Product>) => void;
   deleteProduct: (productId: string) => void;
-  advanceOrderStatus: (orderId: string) => void;
+  advanceOrderStatus: (orderId: string, suborderId?: string) => void;
   addNewOrder: (order: Order) => void;
   addQuotationRequest: (rfq: QuotationRequest) => void;
   submitQuotationResponse: (rfqId: string, quoteAmount: number, notes: string) => void;
@@ -124,14 +124,42 @@ export const MerchantProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
-  const advanceOrderStatus = (orderId: string) => {
-    const statusFlow: Order['status'][] = ['placed', 'confirmed', 'packing', 'out_for_delivery', 'delivered'];
+  const advanceOrderStatus = (orderId: string, suborderId?: string) => {
+    const statusFlow: Order['status'][] = ['placed', 'confirmed', 'packing', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
     setOrders(prev =>
       prev.map(order => {
         if (order.id === orderId) {
-          const currentIndex = statusFlow.indexOf(order.status);
-          const nextIndex = Math.min(statusFlow.length - 1, currentIndex + 1);
-          return { ...order, status: statusFlow[nextIndex] };
+          if (suborderId && order.suborders && order.suborders.length > 0) {
+            const updatedSuborders = order.suborders.map(sub => {
+              if (sub.id === suborderId) {
+                const cIdx = statusFlow.indexOf(sub.status);
+                const nIdx = Math.min(statusFlow.length - 1, cIdx + 1);
+                return { ...sub, status: statusFlow[nIdx] };
+              }
+              return sub;
+            });
+            const lowestIdx = Math.min(
+              ...updatedSuborders.map(s => statusFlow.indexOf(s.status))
+            );
+            return {
+              ...order,
+              status: statusFlow[lowestIdx],
+              suborders: updatedSuborders
+            };
+          } else {
+            const currentIndex = statusFlow.indexOf(order.status);
+            const nextIndex = Math.min(statusFlow.length - 1, currentIndex + 1);
+            const nextStatus = statusFlow[nextIndex];
+            const updatedSuborders = order.suborders?.map(s => ({
+              ...s,
+              status: nextStatus
+            }));
+            return {
+              ...order,
+              status: nextStatus,
+              suborders: updatedSuborders || order.suborders
+            };
+          }
         }
         return order;
       })

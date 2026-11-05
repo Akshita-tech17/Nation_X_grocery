@@ -7,6 +7,8 @@ import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Order } from '../../types';
+import { MERCHANTS } from '../../data/merchants';
+import { partitionCartIntoSuborders } from '../../utils/orderPartitioning';
 import {
   MapPin,
   Clock,
@@ -17,7 +19,8 @@ import {
   QrCode,
   Building,
   Check,
-  Package
+  Package,
+  Store
 } from 'lucide-react';
 
 export const CheckoutModal: React.FC = () => {
@@ -56,6 +59,21 @@ export const CheckoutModal: React.FC = () => {
       const newId = `NX-${Math.floor(10000 + Math.random() * 90000)}`;
       setPlacedOrderId(newId);
 
+      // Group items into separate merchant suborders (PDF Section 5.2)
+      const suborders = partitionCartIntoSuborders(cart, {
+        orderId: newId,
+        defaultArea: currentLocation.area,
+        defaultEta: currentLocation.eta,
+        hasWholesaleItems,
+        merchantsCatalog: MERCHANTS
+      });
+
+      const primaryStore = suborders[0] || {
+        storeId: 'store-sharma-kirana',
+        storeName: 'Sharmaji Kirana & Superstore'
+      };
+      const isMultiStore = suborders.length > 1;
+
       const newOrder: Order = {
         id: newId,
         date: 'Just now',
@@ -65,8 +83,9 @@ export const CheckoutModal: React.FC = () => {
         savings: totalSavings,
         orderType: hasWholesaleItems ? 'wholesale' : 'retail',
         status: 'placed',
-        storeId: 'store-sharma-kirana',
-        storeName: 'Sharmaji Kirana & Superstore',
+        storeId: primaryStore.storeId,
+        storeName: isMultiStore ? `Multi-Shop Order (${suborders.length} Stores)` : primaryStore.storeName,
+        suborders,
         deliveryAddress: {
           name,
           phone,
@@ -78,7 +97,7 @@ export const CheckoutModal: React.FC = () => {
           businessName: businessName || undefined,
           gstNumber: gstNumber || undefined
         },
-        paymentMethod: paymentMethod === 'upi' ? 'UPI (Instant Demo)' : paymentMethod === 'cod' ? 'Cash/Credit on Delivery' : 'Online Banking',
+        paymentMethod: paymentMethod === 'upi' ? 'UPI (Gateway Verified)' : paymentMethod === 'card' ? 'Card Payment' : 'Net Banking',
         paymentStatus: 'paid',
         estimatedDelivery: hasWholesaleItems ? 'Today by 3:30 PM (Mandi Mini-Truck)' : `${currentLocation.eta}`
       };
@@ -103,6 +122,18 @@ export const CheckoutModal: React.FC = () => {
     >
       {step === 1 && (
         <div className="space-y-4">
+          {new Set(cart.map(i => i.product.merchantId)).size > 1 && (
+            <div className="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200 text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Store className="w-4 h-4 text-forest-700 shrink-0" />
+                <span className="font-semibold text-stone-800">
+                  Multi-Shop Order: <strong className="text-forest-900">{new Set(cart.map(i => i.product.merchantId)).size} stores</strong> fulfilling
+                </span>
+              </div>
+              <Badge variant="forest" size="sm">Independent Dispatch</Badge>
+            </div>
+          )}
+
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-forest-700" />
             1. Delivery Address & Contact
@@ -287,7 +318,7 @@ export const CheckoutModal: React.FC = () => {
         <div className="space-y-4">
           <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-forest-700" />
-            3. Payment Method (Interactive Demo)
+            3. Payment Method
           </h4>
 
           {/* Payment Method Selector */}
@@ -305,7 +336,7 @@ export const CheckoutModal: React.FC = () => {
                 <QrCode className="w-4 h-4 text-forest-700" />
                 <span>UPI (GPay / PhonePe)</span>
               </div>
-              <span className="text-[10px] text-stone-500">Zero surcharge • Instant</span>
+              <span className="text-[10px] text-stone-500">Zero surcharge • Verified</span>
             </button>
 
             <button
@@ -342,18 +373,15 @@ export const CheckoutModal: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => setPaymentMethod('cod')}
-              className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition-all ${
-                paymentMethod === 'cod'
-                  ? 'border-forest-600 bg-forest-50/70 font-semibold text-forest-950'
-                  : 'border-stone-200 hover:border-stone-300'
-              }`}
+              disabled
+              title="Cash on Delivery is currently disabled pending business policy (§5.5)"
+              className="p-3 rounded-xl border border-stone-200 bg-stone-100/70 text-left flex flex-col justify-between gap-2 opacity-60 cursor-not-allowed"
             >
-              <div className="flex items-center gap-1.5 font-bold">
-                <CheckCircle2 className="w-4 h-4 text-forest-700" />
+              <div className="flex items-center gap-1.5 font-bold text-stone-400">
+                <CheckCircle2 className="w-4 h-4 text-stone-400" />
                 <span>Cash on Delivery</span>
               </div>
-              <span className="text-[10px] text-stone-500">Pay cash or UPI at door</span>
+              <span className="text-[10px] text-rose-600 font-medium">Disabled by policy (§5.5)</span>
             </button>
           </div>
 

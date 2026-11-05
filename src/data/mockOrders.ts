@@ -34,7 +34,52 @@ export const INITIAL_ORDERS: Order[] = [
     orderType: 'retail',
     status: 'packing',
     storeId: 'store-sharma-kirana',
-    storeName: 'Sharmaji Kirana & Superstore',
+    storeName: 'Multi-Shop Order (2 Stores)',
+    suborders: [
+      {
+        id: 'SUB-NX-89214-1',
+        storeId: 'store-sharma-kirana',
+        storeName: 'Sharmaji Kirana & Superstore',
+        storeArea: 'Indiranagar',
+        items: [
+          {
+            product: PRODUCTS[0],
+            quantity: 2,
+            mode: 'retail',
+            unitPrice: 345,
+            totalPrice: 690
+          },
+          {
+            product: PRODUCTS[2],
+            quantity: 2,
+            mode: 'retail',
+            unitPrice: 172,
+            totalPrice: 344
+          }
+        ],
+        subtotal: 1034,
+        status: 'packing',
+        estimatedDelivery: 'In 18 minutes'
+      },
+      {
+        id: 'SUB-NX-89214-2',
+        storeId: 'store-annapurna-organic',
+        storeName: 'Annapurna Organic Depot & Farm Fresh',
+        storeArea: 'Jayanagar',
+        items: [
+          {
+            product: PRODUCTS[8],
+            quantity: 1,
+            mode: 'retail',
+            unitPrice: 420,
+            totalPrice: 420
+          }
+        ],
+        subtotal: 420,
+        status: 'packing',
+        estimatedDelivery: 'In 25 minutes'
+      }
+    ],
     deliveryAddress: {
       name: 'Priya Sundaram',
       phone: '+91 98451 44521',
@@ -76,6 +121,35 @@ export const INITIAL_ORDERS: Order[] = [
     status: 'out_for_delivery',
     storeId: 'store-yeshwanthpur-wholesale',
     storeName: 'Mandi Direct Wholesale Traders',
+    suborders: [
+      {
+        id: 'SUB-NX-B2B-1049-1',
+        storeId: 'store-yeshwanthpur-wholesale',
+        storeName: 'Mandi Direct Wholesale Traders',
+        storeArea: 'Yeshwanthpur APMC',
+        items: [
+          {
+            product: PRODUCTS[1],
+            quantity: 10,
+            mode: 'wholesale',
+            appliedTier: PRODUCTS[1].bulkTiers?.[1],
+            unitPrice: 685,
+            totalPrice: 6850
+          },
+          {
+            product: PRODUCTS[9],
+            quantity: 4,
+            mode: 'wholesale',
+            appliedTier: PRODUCTS[9].bulkTiers?.[0],
+            unitPrice: 2150,
+            totalPrice: 8600
+          }
+        ],
+        subtotal: 15450,
+        status: 'out_for_delivery',
+        estimatedDelivery: 'Today by 2:00 PM (Mini-truck)'
+      }
+    ],
     deliveryAddress: {
       name: 'Vikram Joshi (Annapurna Caterers)',
       phone: '+91 99002 88471',

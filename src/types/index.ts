@@ -87,6 +87,17 @@ export interface DeliveryAddress {
   gstNumber?: string;
 }
 
+export interface MerchantSuborder {
+  id: string;
+  storeId: string;
+  storeName: string;
+  storeArea?: string;
+  items: CartItem[];
+  subtotal: number;
+  status: 'placed' | 'confirmed' | 'packing' | 'ready_for_pickup' | 'out_for_delivery' | 'delivered';
+  estimatedDelivery?: string;
+}
+
 export interface Order {
   id: string;
   date: string;
@@ -95,9 +106,10 @@ export interface Order {
   originalAmount: number;
   savings: number;
   orderType: 'retail' | 'wholesale';
-  status: 'placed' | 'confirmed' | 'packing' | 'out_for_delivery' | 'delivered';
+  status: 'placed' | 'confirmed' | 'packing' | 'ready_for_pickup' | 'out_for_delivery' | 'delivered';
   storeId: string;
   storeName: string;
+  suborders?: MerchantSuborder[];
   deliveryAddress: DeliveryAddress;
   paymentMethod: string;
   paymentStatus: 'paid' | 'pending';

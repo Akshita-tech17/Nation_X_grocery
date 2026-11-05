@@ -79,11 +79,17 @@ export const InventoryTable: React.FC = () => {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-stone-200/90 shadow-sm overflow-hidden">
+        {/* Mobile Swipe Hint */}
+        <div className="sm:hidden px-4 py-2 bg-stone-50/90 border-b border-stone-200 text-[11px] font-semibold text-stone-600 flex items-center justify-between">
+          <span>{filteredProducts.length} Inventory Items</span>
+          <span className="text-forest-800 font-bold flex items-center gap-1">Swipe right to edit prices & slabs →</span>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-600 uppercase font-semibold text-[11px] tracking-wider">
               <tr>
-                <th className="py-3.5 px-4">Product & Origin</th>
+                <th className="py-3.5 px-4 sticky left-0 bg-stone-50 z-20 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200 min-w-[200px]">Product & Origin</th>
                 <th className="py-3.5 px-4">Pack Unit</th>
                 <th className="py-3.5 px-4">Stock Units</th>
                 <th className="py-3.5 px-4">Retail Price (₹)</th>
@@ -98,7 +104,7 @@ export const InventoryTable: React.FC = () => {
                 return (
                   <tr key={product.id} className="hover:bg-stone-50/50 transition-colors">
                     {/* Product & Origin */}
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 sticky left-0 bg-white z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] border-r border-stone-200 min-w-[200px]">
                       <div className="flex items-center gap-3">
                         <img
                           src={product.image}

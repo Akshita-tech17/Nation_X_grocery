@@ -39,34 +39,36 @@ export const CartDrawer: React.FC = () => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-soft-lg flex flex-col">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
+        <div className="w-screen max-w-full sm:max-w-md bg-white shadow-soft-lg flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-warm-100 flex items-center justify-between bg-warm-50/60">
+          <div className="p-4 border-b border-warm-100 flex items-center justify-between bg-warm-50/60 shrink-0">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-forest-900 text-white flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-forest-900 text-white flex items-center justify-center shrink-0">
                 <ShoppingBag className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="font-bold text-warm-900 text-base">Your Basket</h2>
+                <h2 className="font-bold text-warm-900 text-base leading-tight">Your Basket</h2>
                 <p className="text-xs text-warm-500">
                   Delivering to {currentLocation.area} ({currentLocation.eta})
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {cart.length > 0 && (
                 <button
                   onClick={clearCart}
-                  className="text-xs text-warm-400 hover:text-rose-600 transition-colors p-1"
+                  className="min-w-[36px] min-h-[36px] flex items-center justify-center text-xs text-warm-400 hover:text-rose-600 transition-colors rounded-lg"
                   title="Clear basket"
+                  aria-label="Clear basket"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="p-1 rounded-lg text-warm-400 hover:text-warm-700 hover:bg-warm-100 transition-colors"
+                aria-label="Close basket"
+                className="min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg text-warm-500 hover:text-warm-800 hover:bg-warm-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -171,23 +173,26 @@ export const CartDrawer: React.FC = () => {
                                   onClick={() => removeFromCart(item.product.id)}
                                   className="text-warm-400 hover:text-rose-600 p-1 transition-colors"
                                   title="Remove item"
+                                  aria-label={`Remove ${item.product.name} from basket`}
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </button>
                                 {/* Stepper */}
-                                <div className="flex items-center border border-warm-200 bg-white rounded-lg shadow-sm">
+                                <div className="flex items-center border border-warm-200 bg-white rounded-xl shadow-sm overflow-hidden">
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                    className="p-1 hover:bg-warm-100 text-warm-600 rounded-l-lg transition-colors"
+                                    aria-label={`Decrease quantity of ${item.product.name}`}
+                                    className="min-w-[34px] min-h-[34px] flex items-center justify-center hover:bg-warm-100 text-warm-700 transition-colors"
                                   >
                                     <Minus className="w-3.5 h-3.5" />
                                   </button>
-                                  <span className="px-2.5 py-0.5 text-xs font-bold text-warm-900 font-mono">
+                                  <span className="px-2.5 py-0.5 text-xs font-bold text-warm-900 font-mono min-w-[1.5rem] text-center">
                                     {item.quantity}
                                   </span>
                                   <button
                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                    className="p-1 hover:bg-warm-100 text-warm-600 rounded-r-lg transition-colors"
+                                    aria-label={`Increase quantity of ${item.product.name}`}
+                                    className="min-w-[34px] min-h-[34px] flex items-center justify-center hover:bg-warm-100 text-warm-700 transition-colors"
                                   >
                                     <Plus className="w-3.5 h-3.5" />
                                   </button>
@@ -241,19 +246,21 @@ export const CartDrawer: React.FC = () => {
                               </div>
 
                               {/* Stepper */}
-                              <div className="flex items-center border border-warm-200 bg-warm-50 rounded-lg shadow-sm">
+                              <div className="flex items-center border border-warm-200 bg-warm-50 rounded-xl shadow-sm overflow-hidden">
                                 <button
                                   onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                  className="p-1 hover:bg-warm-200/70 text-warm-700 rounded-l-lg transition-colors"
+                                  aria-label={`Decrease quantity of ${item.product.name}`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center hover:bg-warm-200/70 text-warm-700 transition-colors"
                                 >
                                   <Minus className="w-3.5 h-3.5" />
                                 </button>
-                                <span className="px-2.5 py-0.5 text-xs font-bold text-warm-900 font-mono">
+                                <span className="px-2.5 py-0.5 text-xs font-bold text-warm-900 font-mono min-w-[1.5rem] text-center">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                  className="p-1 hover:bg-warm-200/70 text-warm-700 rounded-r-lg transition-colors"
+                                  aria-label={`Increase quantity of ${item.product.name}`}
+                                  className="min-w-[34px] min-h-[34px] flex items-center justify-center hover:bg-warm-200/70 text-warm-700 transition-colors"
                                 >
                                   <Plus className="w-3.5 h-3.5" />
                                 </button>
